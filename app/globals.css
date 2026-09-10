@@ -1,0 +1,266 @@
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "../vendor/shadcn-tailwind-4.13.0.css";
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+:root {
+  --background: #f7f5f0;
+  --foreground: #172235;
+  --card: #fffefa;
+  --card-foreground: #172235;
+  --popover: #fffefa;
+  --popover-foreground: #172235;
+  --primary: #2f4a43;
+  --primary-foreground: #fffdf7;
+  --secondary: #ece8de;
+  --secondary-foreground: #243830;
+  --muted: #efede7;
+  --muted-foreground: #60665f;
+  --accent: #c18a2f;
+  --accent-foreground: #5b3908;
+  --destructive: #b4232f;
+  --border: #dcd7cc;
+  --input: #d8d2c7;
+  --ring: #315c50;
+  --chart-1: #2f4a43;
+  --chart-2: #c18a2f;
+  --chart-3: #6b5944;
+  --chart-4: #597568;
+  --chart-5: #9a6c24;
+  --radius: 0.8rem;
+  --sidebar: #1f332e;
+  --sidebar-foreground: #f4f0e7;
+  --sidebar-primary: #d29b40;
+  --sidebar-primary-foreground: #1c2f2a;
+  --sidebar-accent: #2a403a;
+  --sidebar-accent-foreground: #fffdf7;
+  --sidebar-border: #3b504a;
+  --sidebar-ring: #e0ad58;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Crimson Pro", ui-serif, Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #101815;
+    --foreground: #f2eee4;
+    --card: #17231f;
+    --card-foreground: #f2eee4;
+    --popover: #17231f;
+    --popover-foreground: #f2eee4;
+    --primary: #d3a75e;
+    --primary-foreground: #17231f;
+    --secondary: #26352f;
+    --secondary-foreground: #f2eee4;
+    --muted: #202e29;
+    --muted-foreground: #b6bdb6;
+    --accent: #dda94f;
+    --accent-foreground: #fff1d4;
+    --destructive: #ff7077;
+    --border: #35453f;
+    --input: #41514b;
+    --ring: #e3b666;
+    --sidebar: #0c1512;
+    --sidebar-foreground: #f4f0e7;
+    --sidebar-primary: #d6a34d;
+    --sidebar-primary-foreground: #11201b;
+    --sidebar-accent: #1b2b25;
+    --sidebar-accent-foreground: #fffdf7;
+    --sidebar-border: #2b3d36;
+    --sidebar-ring: #e0ad58;
+  }
+}
+
+* { border-color: var(--border); }
+
+html { background: var(--background); }
+
+body {
+  min-width: 320px;
+  background:
+    radial-gradient(circle at 82% 8%, color-mix(in srgb, var(--accent) 8%, transparent) 0, transparent 28rem),
+    var(--background);
+  color: var(--foreground);
+  font-family: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+button, a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+button:not(:disabled), [role="button"]:not([aria-disabled="true"]) { cursor: pointer; }
+::selection { background: color-mix(in srgb, var(--accent) 32%, transparent); }
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  transform: translateY(-180%);
+  border-radius: 0.55rem;
+  background: var(--foreground);
+  color: var(--background);
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus { transform: translateY(0); outline: 3px solid var(--ring); outline-offset: 2px; }
+
+.chapter-masthead {
+  position: relative;
+  background: linear-gradient(110deg, color-mix(in srgb, var(--card) 98%, transparent) 0%, color-mix(in srgb, var(--accent) 6%, var(--card)) 100%);
+  box-shadow: 0 18px 60px rgb(32 47 42 / 7%);
+}
+
+.chapter-masthead::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--accent);
+}
+
+.metric-card {
+  display: flex;
+  min-height: 5.7rem;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--card) 76%, transparent);
+  padding: 0.75rem 0.55rem;
+  text-align: center;
+}
+
+.metric-value { font-family: "Crimson Pro", Georgia, serif; font-size: 1.5rem; font-weight: 600; line-height: 1; }
+.metric-label { margin-top: 0.45rem; font-size: 0.72rem; color: var(--muted-foreground); }
+
+.verse-button {
+  position: relative;
+  display: grid;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  background: var(--background);
+  color: var(--muted-foreground);
+  font-weight: 700;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.verse-button:hover { border-color: var(--primary); color: var(--foreground); transform: translateY(-1px); }
+.verse-button:focus-visible { outline: 3px solid color-mix(in srgb, var(--ring) 42%, transparent); outline-offset: 2px; }
+.verse-button[aria-pressed="true"] { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); }
+.completed-dot { position: absolute; right: 4px; top: 4px; height: 5px; width: 5px; border-radius: 999px; background: var(--accent); }
+
+.verse-number {
+  display: grid;
+  min-height: 3.25rem;
+  min-width: 3.25rem;
+  place-items: center;
+  border-radius: 0.85rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 600;
+}
+
+.scripture-quote {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--accent) 7%, var(--card));
+  padding: 1.25rem 1.35rem 1.25rem 1.65rem;
+}
+
+.scripture-quote::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--accent); }
+.reading-copy h3 { font-family: "Crimson Pro", Georgia, serif; font-size: 1.65rem; font-weight: 600; }
+.reading-copy > p { margin-top: 0.75rem; color: var(--muted-foreground); line-height: 1.75; }
+
+.language-note {
+  display: flex;
+  gap: 0.9rem;
+  margin-top: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--accent) 7%, var(--card));
+  padding: 1rem;
+}
+
+.theology-card { border: 1px solid var(--border); border-radius: 0.85rem; background: color-mix(in srgb, var(--muted) 54%, var(--card)); padding: 1rem; }
+.theology-index { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; color: var(--accent-foreground); }
+.theology-card h3 { margin-top: 0.7rem; font-family: "Crimson Pro", Georgia, serif; font-size: 1.25rem; font-weight: 600; }
+.theology-card p { margin-top: 0.4rem; color: var(--muted-foreground); font-size: 0.9rem; line-height: 1.55; }
+
+.study-path { position: relative; display: grid; gap: 0.2rem; }
+.study-path::before { content: ""; position: absolute; left: 1rem; top: 1rem; bottom: 1rem; width: 1px; background: var(--border); }
+.study-path li { position: relative; z-index: 1; display: grid; grid-template-columns: 2rem 1fr; align-items: center; gap: 0.75rem; padding: 0.55rem 0; }
+.study-path li > span { display: grid; height: 2rem; width: 2rem; place-items: center; border: 1px solid var(--border); border-radius: 999px; background: var(--card); color: var(--muted-foreground); font-size: 0.75rem; font-weight: 700; }
+.study-path li:first-child > span { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); }
+.study-path li p { font-size: 0.9rem; font-weight: 700; }
+.study-path li small { display: block; margin-top: 0.1rem; color: var(--muted-foreground); font-size: 0.76rem; line-height: 1.35; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .metric-card { min-height: 4.8rem; }
+  .metric-value { font-size: 1.25rem; }
+}
