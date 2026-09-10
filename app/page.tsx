@@ -33,6 +33,7 @@ import {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -524,6 +525,37 @@ const connections = [
   ["Hebreos 11:3", "La fe reconoce que el universo fue constituido por la palabra de Dios."],
 ] as const;
 
+function CanonBookButton({
+  active,
+  book,
+  chapters,
+  onSelect,
+}: {
+  active: boolean;
+  book: string;
+  chapters: number;
+  onSelect: () => void;
+}) {
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  function handleSelect() {
+    if (isMobile) setOpenMobile(false);
+    onSelect();
+  }
+
+  return (
+    <SidebarMenuButton
+      isActive={active}
+      onClick={handleSelect}
+      aria-current={active ? "page" : undefined}
+      aria-label={`${book}, ${chapters} capítulos${active ? ", libro seleccionado" : ""}`}
+      className="h-9 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
+    >
+      <span className={active ? "font-semibold" : "text-sidebar-foreground/76"}>{book}</span>
+    </SidebarMenuButton>
+  );
+}
+
 export default function Home() {
   const [selectedVerse, setSelectedVerse] = useState(1);
   const [completedVerses, setCompletedVerses] = useState<number[]>([]);
@@ -654,14 +686,12 @@ export default function Home() {
                     const active = apiBookIds[book] === activeBookId;
                     return (
                       <SidebarMenuItem key={book}>
-                        <SidebarMenuButton
-                          isActive={active}
-                          onClick={() => openBook(book)}
-                          aria-label={`${book}, ${chapters} capítulos${active ? ", libro seleccionado" : ""}`}
-                          className="h-9 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
-                        >
-                          <span className={active ? "font-semibold" : "text-sidebar-foreground/76"}>{book}</span>
-                        </SidebarMenuButton>
+                        <CanonBookButton
+                          active={active}
+                          book={book}
+                          chapters={chapters}
+                          onSelect={() => openBook(book)}
+                        />
                         <SidebarMenuBadge className={active ? "text-sidebar-primary-foreground/80" : "text-sidebar-foreground/65"}>
                           {chapters}
                         </SidebarMenuBadge>

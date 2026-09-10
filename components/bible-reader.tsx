@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BookMarked,
   ChevronLeft,
@@ -103,6 +103,7 @@ export function BibleReader() {
   const [chapterLoading, setChapterLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
+  const pendingBookIdRef = useRef<string | null>(null);
 
   const selectedBible = useMemo(
     () => bibles.find((bible) => bible.id === selectedBibleId),
@@ -159,11 +160,14 @@ export function BibleReader() {
       controller.signal,
     )
       .then((availableBooks) => {
+        const pendingBookId = pendingBookIdRef.current;
         const requestedBook = initialParam("book");
         const nextBook =
+          availableBooks.find((book) => book.id === pendingBookId) ||
           availableBooks.find((book) => book.id === requestedBook) ||
           availableBooks.find((book) => book.id === "GEN") ||
           availableBooks[0];
+        pendingBookIdRef.current = null;
         setBooks(availableBooks);
         setSelectedBookId(nextBook?.id || "");
 
@@ -230,8 +234,14 @@ export function BibleReader() {
   useEffect(() => {
     function handleNavigation(event: Event) {
       const bookId = (event as CustomEvent<{ bookId?: string }>).detail?.bookId;
+      if (!bookId) return;
       const nextBook = books.find((book) => book.id === bookId);
-      if (!nextBook) return;
+      if (!nextBook) {
+        pendingBookIdRef.current = booksLoading ? bookId : null;
+        return;
+      }
+      pendingBookIdRef.current = null;
+      if (nextBook.id === selectedBookId) return;
       const nextChapterId = nextBook.chapters[0]?.id || "";
       setSelectedBookId(nextBook.id);
       setSelectedChapterId(nextChapterId);
@@ -242,7 +252,7 @@ export function BibleReader() {
 
     window.addEventListener("bible-reader-navigate", handleNavigation);
     return () => window.removeEventListener("bible-reader-navigate", handleNavigation);
-  }, [books]);
+  }, [books, booksLoading, selectedBookId]);
 
   function selectBook(bookId: string) {
     const nextBook = books.find((book) => book.id === bookId);
