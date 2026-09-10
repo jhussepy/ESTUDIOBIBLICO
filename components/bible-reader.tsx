@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   BookMarked,
+  ChevronLeft,
+  ChevronRight,
   CircleAlert,
   CircleCheck,
   RefreshCw,
@@ -215,6 +217,33 @@ export function BibleReader() {
     window.fums?.("trackView", chapter.fumsToken);
   }, [chapter?.fumsToken]);
 
+  useEffect(() => {
+    if (!selectedBookId) return;
+    window.dispatchEvent(new CustomEvent("bible-reader-selection", {
+      detail: {
+        bookId: selectedBookId,
+        reference: chapter?.reference || selectedBook?.name || selectedBookId,
+      },
+    }));
+  }, [chapter?.reference, selectedBook?.name, selectedBookId]);
+
+  useEffect(() => {
+    function handleNavigation(event: Event) {
+      const bookId = (event as CustomEvent<{ bookId?: string }>).detail?.bookId;
+      const nextBook = books.find((book) => book.id === bookId);
+      if (!nextBook) return;
+      const nextChapterId = nextBook.chapters[0]?.id || "";
+      setSelectedBookId(nextBook.id);
+      setSelectedChapterId(nextChapterId);
+      setChapterLoading(Boolean(nextChapterId));
+      setChapter(null);
+      setError(null);
+    }
+
+    window.addEventListener("bible-reader-navigate", handleNavigation);
+    return () => window.removeEventListener("bible-reader-navigate", handleNavigation);
+  }, [books]);
+
   function selectBook(bookId: string) {
     const nextBook = books.find((book) => book.id === bookId);
     const nextChapterId = nextBook?.chapters[0]?.id || "";
@@ -236,10 +265,22 @@ export function BibleReader() {
     setError(null);
   }
 
+  function moveChapter(direction: -1 | 1) {
+    const currentIndex = availableChapters.findIndex((item) => item.id === selectedChapterId);
+    const nextChapter = availableChapters[currentIndex + direction];
+    if (!nextChapter) return;
+    setSelectedChapterId(nextChapter.id);
+    setChapter(null);
+    setChapterLoading(true);
+    setError(null);
+  }
+
+  const selectedChapterIndex = availableChapters.findIndex((item) => item.id === selectedChapterId);
+
   const hasNoBibles = !catalogLoading && !error && bibles.length === 0;
 
   return (
-    <section aria-labelledby="bible-reader-title" className="mt-6 overflow-hidden rounded-2xl border border-border bg-card">
+    <section id="lector-biblico" aria-labelledby="bible-reader-title" className="scroll-mt-20 mt-6 overflow-hidden rounded-2xl border border-border bg-card">
       <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-start sm:justify-between sm:p-6">
         <div className="flex items-start gap-3">
           <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
@@ -304,22 +345,46 @@ export function BibleReader() {
 
         <div className="min-w-0 space-y-2">
           <Label htmlFor="bible-chapter">Capítulo</Label>
-          <NativeSelect
-            id="bible-chapter"
-            value={selectedChapterId}
-            onChange={(event) => {
-              setSelectedChapterId(event.target.value);
-              setChapter(null);
-              setChapterLoading(Boolean(event.target.value));
-              setError(null);
-            }}
-            disabled={booksLoading || availableChapters.length === 0}
-            className="h-11 w-full bg-card"
-          >
-            {availableChapters.map((item) => (
-              <NativeSelectOption key={item.id} value={item.id}>Capítulo {item.number}</NativeSelectOption>
-            ))}
-          </NativeSelect>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              onClick={() => moveChapter(-1)}
+              disabled={booksLoading || selectedChapterIndex <= 0}
+              aria-label="Capítulo anterior"
+              className="size-11 bg-card"
+            >
+              <ChevronLeft aria-hidden="true" />
+            </Button>
+            <NativeSelect
+              id="bible-chapter"
+              value={selectedChapterId}
+              onChange={(event) => {
+                setSelectedChapterId(event.target.value);
+                setChapter(null);
+                setChapterLoading(Boolean(event.target.value));
+                setError(null);
+              }}
+              disabled={booksLoading || availableChapters.length === 0}
+              className="h-11 w-full bg-card"
+            >
+              {availableChapters.map((item) => (
+                <NativeSelectOption key={item.id} value={item.id}>Capítulo {item.number}</NativeSelectOption>
+              ))}
+            </NativeSelect>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              onClick={() => moveChapter(1)}
+              disabled={booksLoading || selectedChapterIndex === -1 || selectedChapterIndex >= availableChapters.length - 1}
+              aria-label="Capítulo siguiente"
+              className="size-11 bg-card"
+            >
+              <ChevronRight aria-hidden="true" />
+            </Button>
+          </div>
         </div>
       </div>
 

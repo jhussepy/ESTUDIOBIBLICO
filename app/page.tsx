@@ -94,6 +94,23 @@ const canon = [
   { section: "Profecía", books: [["Apocalipsis", 22]] },
 ] as const;
 
+const apiBookIds: Record<string, string> = {
+  "Génesis": "GEN", "Éxodo": "EXO", "Levítico": "LEV", "Números": "NUM", "Deuteronomio": "DEU",
+  "Josué": "JOS", "Jueces": "JDG", "Rut": "RUT", "1 Samuel": "1SA", "2 Samuel": "2SA",
+  "1 Reyes": "1KI", "2 Reyes": "2KI", "1 Crónicas": "1CH", "2 Crónicas": "2CH", "Esdras": "EZR",
+  "Nehemías": "NEH", "Ester": "EST", "Job": "JOB", "Salmos": "PSA", "Proverbios": "PRO",
+  "Eclesiastés": "ECC", "Cantares": "SNG", "Isaías": "ISA", "Jeremías": "JER", "Lamentaciones": "LAM",
+  "Ezequiel": "EZK", "Daniel": "DAN", "Oseas": "HOS", "Joel": "JOL", "Amós": "AMO",
+  "Abdías": "OBA", "Jonás": "JON", "Miqueas": "MIC", "Nahúm": "NAM", "Habacuc": "HAB",
+  "Sofonías": "ZEP", "Hageo": "HAG", "Zacarías": "ZEC", "Malaquías": "MAL", "Mateo": "MAT",
+  "Marcos": "MRK", "Lucas": "LUK", "Juan": "JHN", "Hechos": "ACT", "Romanos": "ROM",
+  "1 Corintios": "1CO", "2 Corintios": "2CO", "Gálatas": "GAL", "Efesios": "EPH", "Filipenses": "PHP",
+  "Colosenses": "COL", "1 Tesalonicenses": "1TH", "2 Tesalonicenses": "2TH", "1 Timoteo": "1TI", "2 Timoteo": "2TI",
+  "Tito": "TIT", "Filemón": "PHM", "Hebreos": "HEB", "Santiago": "JAS", "1 Pedro": "1PE",
+  "2 Pedro": "2PE", "1 Juan": "1JN", "2 Juan": "2JN", "3 Juan": "3JN", "Judas": "JUD",
+  "Apocalipsis": "REV",
+};
+
 const verses = [
   {
     number: 1,
@@ -160,6 +177,344 @@ const verses = [
     exegesis: "En el mundo antiguo, nombrar expresa autoridad. El cierre «tarde y mañana» organiza el relato en jornadas. La naturaleza precisa de estos días ha generado varias interpretaciones cristianas, pero todas deben comenzar por la función literaria de la secuencia en el texto.",
     language: "Yom puede referirse a un día ordinario o, en otros contextos, a un período. Aquí aparece acompañado por una fórmula numérica y temporal; su interpretación debe considerar tanto la gramática como la estructura completa de Génesis 1.",
   },
+  {
+    number: 6,
+    title: "La expansión entre las aguas",
+    summary: "Dios establece un espacio ordenado que distingue las aguas superiores de las inferiores.",
+    hebrew: "יְהִי רָקִיעַ",
+    transliteration: "Yehi raqia",
+    rvr: "Dios ordena que exista una expansión en medio de las aguas.",
+    ntv: "Dios dispone un espacio que separe unas aguas de otras.",
+    lbla: "El Creador establece una bóveda para organizar las aguas.",
+    exact: false,
+    exegesis: "El segundo día continúa el movimiento desde lo no ordenado hacia un mundo habitable. La expansión no aparece como una divinidad celeste, sino como una parte de la creación que obedece al mandato de Dios.",
+    language: "Raqia procede de una raíz asociada con extender o desplegar. Describe el espacio visible del cielo según la perspectiva del observador antiguo, sin convertir el pasaje en un tratado científico moderno.",
+  },
+  {
+    number: 7,
+    title: "Dios ejecuta su mandato",
+    summary: "El mandato se convierte en obra: Dios hace la expansión y separa las aguas.",
+    hebrew: "וַיַּבְדֵּל בֵּין הַמַּיִם",
+    transliteration: "Vayavdel bein hamayim",
+    rvr: "Dios realiza la separación entre las aguas de abajo y las de arriba.",
+    ntv: "El Creador organiza las aguas conforme a la distinción ordenada.",
+    lbla: "La obra divina cumple exactamente la palabra pronunciada.",
+    exact: false,
+    exegesis: "La repetición entre mandato y cumplimiento subraya que la voluntad divina no queda en intención. El relato atribuye directamente a Dios la formación del ámbito donde después aparecerán las criaturas voladoras.",
+    language: "Badal significa separar o distinguir. En Génesis 1 la separación no destruye: establece límites que permiten identidad, función y vida.",
+  },
+  {
+    number: 8,
+    title: "El cielo recibe nombre",
+    summary: "Dios llama cielos a la expansión y concluye el segundo día.",
+    hebrew: "וַיִּקְרָא אֱלֹהִים לָרָקִיעַ שָׁמָיִם",
+    transliteration: "Vayiqra Elohim laraqia shamayim",
+    rvr: "Dios da a la expansión el nombre de cielos.",
+    ntv: "El espacio creado recibe su identidad y función bajo la autoridad divina.",
+    lbla: "La denominación del cielo confirma el señorío del Creador.",
+    exact: false,
+    exegesis: "Nombrar expresa autoridad soberana. El cielo que otras culturas podían divinizar queda aquí desmitificado: tiene nombre porque Dios se lo concede y ocupa el lugar que Dios determina.",
+    language: "Shamayim es la palabra hebrea habitual para cielos o cielo. Su forma no exige por sí misma múltiples universos; el contexto determina si alude al firmamento visible o a los cielos en sentido amplio.",
+  },
+  {
+    number: 9,
+    title: "Aparece la tierra seca",
+    summary: "Las aguas se reúnen en un lugar y queda visible el suelo habitable.",
+    hebrew: "יִקָּווּ הַמַּיִם",
+    transliteration: "Yiqqawu hamayim",
+    rvr: "Dios reúne las aguas para que aparezca lo seco.",
+    ntv: "El mar recibe límites y emerge la tierra donde habrá vida.",
+    lbla: "La palabra divina delimita las aguas y descubre la tierra firme.",
+    exact: false,
+    exegesis: "El tercer día completa el ámbito terrestre. En vez de combatir un océano divino, Dios simplemente ordena las aguas. La aparición de lo seco prepara el escenario para la vegetación y, más adelante, para animales y seres humanos.",
+    language: "El verbo qavah, aquí en forma pasiva-reflexiva, comunica reunión o concentración. La escena enfatiza delimitación, no aniquilación del mar.",
+  },
+  {
+    number: 10,
+    title: "Tierra y mares",
+    summary: "Dios nombra los nuevos ámbitos y evalúa como buena su organización.",
+    hebrew: "אֶרֶץ וּלְמִקְוֵה הַמַּיִם יַמִּים",
+    transliteration: "Eretz ulemiqveh hamayim yamim",
+    rvr: "Lo seco es llamado tierra y las aguas reunidas, mares.",
+    ntv: "Dios asigna identidad a la tierra y al mar y declara buena su obra.",
+    lbla: "La creación ordenada recibe nombre y aprobación divina.",
+    exact: false,
+    exegesis: "La valoración «bueno» indica que estos ámbitos cumplen el propósito asignado. El mar conserva fuerza y misterio en la Biblia, pero nunca aparece fuera del gobierno de Dios.",
+    language: "Eretz puede significar tierra, territorio o suelo según el contexto. Yamim es el plural de yam, mar; ambos términos describen realidades creadas y subordinadas.",
+  },
+  {
+    number: 11,
+    title: "La tierra produce vegetación",
+    summary: "Dios ordena que la tierra haga brotar plantas con semilla y árboles con fruto.",
+    hebrew: "תַּדְשֵׁא הָאָרֶץ דֶּשֶׁא",
+    transliteration: "Tadshe haaretz deshe",
+    rvr: "La tierra recibe el mandato de producir hierba, semilla y fruto.",
+    ntv: "Dios dota a la vegetación de continuidad y capacidad reproductiva.",
+    lbla: "La fertilidad de la tierra responde a la palabra creadora.",
+    exact: false,
+    exegesis: "Dios concede a la creación una fecundidad real. La tierra participa como causa secundaria, pero la iniciativa y el diseño pertenecen al Creador. La semilla anticipa continuidad de generación en generación.",
+    language: "Deshe designa vegetación tierna o verdor. La repetición sonora con el verbo producir refuerza literariamente la abundancia que comienza a cubrir la tierra.",
+  },
+  {
+    number: 12,
+    title: "Cada planta según su género",
+    summary: "La tierra produce vegetación ordenada y Dios vuelve a declarar buena su obra.",
+    hebrew: "לְמִינֵהוּ",
+    transliteration: "Leminehu",
+    rvr: "Las plantas y árboles producen conforme a sus géneros.",
+    ntv: "La fecundidad creada conserva patrones reconocibles y continuidad.",
+    lbla: "El orden vegetal manifiesta estabilidad dentro de la diversidad.",
+    exact: false,
+    exegesis: "«Según su género» describe orden reproductivo observable; no corresponde directamente a la taxonomía biológica moderna. El énfasis teológico está en una creación fecunda, diversa y no caótica.",
+    language: "Min significa clase o género en sentido cotidiano antiguo. No debe equipararse sin más con especie en el sentido técnico contemporáneo.",
+  },
+  {
+    number: 13,
+    title: "El tercer día",
+    summary: "Tarde y mañana cierran el día en que tierra, mares y vegetación quedan establecidos.",
+    hebrew: "יוֹם שְׁלִישִׁי",
+    transliteration: "Yom shelishi",
+    rvr: "La fórmula temporal concluye el tercer día.",
+    ntv: "El tercer ciclo creador termina con una tierra preparada para alimentar vida.",
+    lbla: "El relato marca la conclusión ordenada de la tercera jornada.",
+    exact: false,
+    exegesis: "El tercer día contiene dos actos y dos evaluaciones de bondad: se forman los ámbitos terrestres y se inicia su llenado. Esta correspondencia contribuye a la arquitectura literaria del capítulo.",
+    language: "Shelishi es el ordinal «tercero». La numeración funciona como marcador estructural y guía al lector a través de la secuencia creadora.",
+  },
+  {
+    number: 14,
+    title: "Luces para tiempos y estaciones",
+    summary: "Dios coloca luminarias para distinguir día y noche y ordenar el calendario humano.",
+    hebrew: "יְהִי מְאֹרֹת",
+    transliteration: "Yehi meorot",
+    rvr: "Dios ordena luminarias que sirvan como señales de tiempos, días y años.",
+    ntv: "Los astros regulan ritmos de luz y calendario por designio del Creador.",
+    lbla: "Las luces celestes reciben funciones temporales concretas.",
+    exact: false,
+    exegesis: "El texto evita los nombres habituales de sol y luna, posiblemente para negarles estatus divino. Son lámparas funcionales creadas por Dios, no poderes que gobiernan el destino humano.",
+    language: "Meorot significa luminarias o portadores de luz. Moedim puede referirse a estaciones y también a tiempos señalados para reuniones o festividades.",
+  },
+  {
+    number: 15,
+    title: "Luz sobre la tierra",
+    summary: "Las luminarias reciben la tarea práctica de alumbrar el mundo habitado.",
+    hebrew: "לְהָאִיר עַל־הָאָרֶץ",
+    transliteration: "Lehair al-haaretz",
+    rvr: "Las luces del cielo alumbran sobre la tierra.",
+    ntv: "Su función beneficia directamente al ámbito donde vivirán las criaturas.",
+    lbla: "La iluminación terrestre cumple el mandato de Dios.",
+    exact: false,
+    exegesis: "La frase recalca finalidad y servicio. Los cuerpos celestes no son objetos de culto; existen para sostener los ritmos de la creación y servir al escenario de la vida.",
+    language: "Hair es la forma causativa del verbo or, «dar luz». La construcción expresa propósito: fueron colocadas para iluminar.",
+  },
+  {
+    number: 16,
+    title: "Las dos grandes luminarias",
+    summary: "Dios hace las luminarias mayor y menor, y también las estrellas.",
+    hebrew: "שְׁנֵי הַמְּאֹרֹת הַגְּדֹלִים",
+    transliteration: "Shenei hameorot hagedolim",
+    rvr: "La luminaria mayor preside el día y la menor, la noche.",
+    ntv: "Sol, luna y estrellas son presentados como obras, no como dioses.",
+    lbla: "Cada luminaria recibe un ámbito de servicio bajo el Creador.",
+    exact: false,
+    exegesis: "La mención casi incidental de las estrellas contrasta con su importancia religiosa en el mundo antiguo. Aquello que las naciones temían o adoraban es, en Génesis, producto de la palabra divina.",
+    language: "Gadol significa grande. El lenguaje de gobierno de las luminarias describe función en los ciclos del día y la noche, no soberanía independiente.",
+  },
+  {
+    number: 17,
+    title: "Colocadas por Dios",
+    summary: "Dios sitúa las luminarias en la expansión para cumplir su misión sobre la tierra.",
+    hebrew: "וַיִּתֵּן אֹתָם אֱלֹהִים",
+    transliteration: "Vayitten otam Elohim",
+    rvr: "Dios coloca las luminarias en el cielo.",
+    ntv: "El Creador asigna a los astros su lugar y servicio.",
+    lbla: "La ubicación de las luces responde a la intención divina.",
+    exact: false,
+    exegesis: "La acción personal de Dios domina el versículo. El cosmos no encuentra su lugar por voluntad propia: su estabilidad y utilidad proceden del orden que el Creador establece.",
+    language: "Natan significa dar, poner o colocar. Aquí comunica asignación: Dios entrega a las luminarias un lugar y una tarea.",
+  },
+  {
+    number: 18,
+    title: "Gobierno sin divinización",
+    summary: "Las luminarias regulan día y noche y mantienen la distinción entre luz y oscuridad.",
+    hebrew: "וְלִמְשֹׁל בַּיּוֹם וּבַלַּיְלָה",
+    transliteration: "Velimshol bayom uvalaylah",
+    rvr: "Las luces gobiernan los ciclos del día y de la noche.",
+    ntv: "Sirven para regular la luz y la oscuridad conforme al diseño divino.",
+    lbla: "Su dominio es funcional y subordinado al mandato del Creador.",
+    exact: false,
+    exegesis: "El verbo gobernar no concede personalidad divina a los astros. Su autoridad es derivada: cumplen una función regular dentro de límites establecidos por Dios.",
+    language: "Mashal puede significar gobernar o ejercer dominio. El infinitivo expresa la función asignada a las luminarias, siempre bajo la soberanía mayor de Dios.",
+  },
+  {
+    number: 19,
+    title: "El cuarto día",
+    summary: "La cuarta jornada concluye con los ritmos celestes establecidos.",
+    hebrew: "יוֹם רְבִיעִי",
+    transliteration: "Yom revii",
+    rvr: "Tarde y mañana cierran el cuarto día.",
+    ntv: "El ciclo termina con el cielo ordenado para marcar los tiempos.",
+    lbla: "La cuarta jornada completa la función de las luminarias.",
+    exact: false,
+    exegesis: "El cuarto día corresponde al primero: la luz y la oscuridad reciben ahora portadores que regulan sus ciclos. La estructura muestra una creación cuidadosamente formada y luego poblada.",
+    language: "Revii significa «cuarto». Como los demás ordinales, mantiene el ritmo litúrgico y narrativo del capítulo.",
+  },
+  {
+    number: 20,
+    title: "Vida en aguas y cielos",
+    summary: "Dios ordena abundancia de criaturas acuáticas y aves sobre la tierra.",
+    hebrew: "יִשְׁרְצוּ הַמַּיִם שֶׁרֶץ",
+    transliteration: "Yishretzu hamayim sheretz",
+    rvr: "Las aguas reciben el mandato de llenarse de seres vivientes.",
+    ntv: "La vida irrumpe en abundancia en el mar y en el cielo.",
+    lbla: "Criaturas acuáticas y voladoras comienzan a poblar sus ámbitos.",
+    exact: false,
+    exegesis: "El día quinto inicia el llenado de los espacios formados en el segundo día. La abundancia no es accidente: constituye una expresión deliberada de la generosidad creadora.",
+    language: "Sharatz expresa pulular o multiplicarse abundantemente. Nefesh hayyah, «ser viviente», destaca vida animada y no equivale automáticamente a la noción filosófica posterior de alma separable.",
+  },
+  {
+    number: 21,
+    title: "Los grandes seres marinos",
+    summary: "Incluso las criaturas imponentes del mar son creadas y declaradas buenas por Dios.",
+    hebrew: "הַתַּנִּינִם הַגְּדֹלִים",
+    transliteration: "Hatanninim hagedolim",
+    rvr: "Dios crea los grandes monstruos marinos y toda criatura acuática.",
+    ntv: "Las criaturas más temidas del océano pertenecen al orden creado.",
+    lbla: "Todo ser marino y toda ave existen por la acción de Dios.",
+    exact: false,
+    exegesis: "En mitos vecinos, seres marinos podían representar poderes rivales. Génesis los incluye entre los animales creados: no amenazan la soberanía divina ni participan en una batalla cósmica contra Dios.",
+    language: "Tanninim puede designar grandes criaturas marinas, serpientes o dragones según el contexto. Aquí son animales creados y buenos, no deidades enemigas.",
+  },
+  {
+    number: 22,
+    title: "La primera bendición",
+    summary: "Dios bendice a los animales y les ordena fructificar y multiplicarse.",
+    hebrew: "פְּרוּ וּרְבוּ",
+    transliteration: "Peru urevu",
+    rvr: "Dios bendice la vida marina y las aves con fecundidad.",
+    ntv: "La multiplicación de la vida procede de la bendición divina.",
+    lbla: "Criaturas del mar y del cielo reciben capacidad para llenar sus ámbitos.",
+    exact: false,
+    exegesis: "La bendición es palabra eficaz que concede capacidad para cumplir el mandato. La vida no solo comienza; recibe de Dios continuidad, expansión y futuro.",
+    language: "Parah y rabah significan fructificar y multiplicarse. Los imperativos comunican misión acompañada por la provisión divina necesaria para realizarla.",
+  },
+  {
+    number: 23,
+    title: "El quinto día",
+    summary: "La jornada concluye con mares y cielos llenándose de vida bendecida.",
+    hebrew: "יוֹם חֲמִישִׁי",
+    transliteration: "Yom jamishi",
+    rvr: "Tarde y mañana cierran el quinto día.",
+    ntv: "El quinto ciclo termina después de la bendición de los animales.",
+    lbla: "La quinta jornada completa el poblamiento de aguas y cielo.",
+    exact: false,
+    exegesis: "El quinto día corresponde al segundo: los ámbitos separados de aguas y expansión reciben ahora sus habitantes. La simetría literaria sostiene el mensaje de orden intencional.",
+    language: "Jamishi es el ordinal «quinto». La forma repetida de cierre mantiene unidad y expectativa hacia el clímax del sexto día.",
+  },
+  {
+    number: 24,
+    title: "Seres vivientes de la tierra",
+    summary: "La tierra produce animales domésticos, criaturas pequeñas y fauna salvaje.",
+    hebrew: "תּוֹצֵא הָאָרֶץ נֶפֶשׁ חַיָּה",
+    transliteration: "Totze haaretz nefesh hayyah",
+    rvr: "Dios ordena que la tierra produzca seres vivientes según sus géneros.",
+    ntv: "El ámbito terrestre se llena con una diversidad organizada de animales.",
+    lbla: "La tierra responde al mandato divino produciendo vida animal.",
+    exact: false,
+    exegesis: "Las categorías reflejan la experiencia cotidiana del antiguo Israel, no una clasificación zoológica exhaustiva. El punto central es que toda forma de vida terrestre depende de la palabra de Dios.",
+    language: "Behemah suele referirse a animales domésticos; remes, a criaturas que se desplazan cerca del suelo; jayto-eretz, a fauna del campo. Son categorías observacionales.",
+  },
+  {
+    number: 25,
+    title: "Diversidad bajo un solo Creador",
+    summary: "Dios hace los distintos animales de la tierra y contempla que su obra es buena.",
+    hebrew: "וַיַּעַשׂ אֱלֹהִים",
+    transliteration: "Vayaas Elohim",
+    rvr: "Dios hace cada grupo de animales según su género.",
+    ntv: "La diversidad animal recibe forma y orden del Creador.",
+    lbla: "La obra terrestre queda completa y aprobada como buena.",
+    exact: false,
+    exegesis: "El versículo repite que Dios hace y evalúa. La bondad de los animales precede a su utilidad para los humanos; poseen valor dentro del propósito creador de Dios.",
+    language: "Asah, «hacer», aparece junto a bara en el capítulo. Los términos se solapan en parte y no deben convertirse automáticamente en etapas técnicas diferentes de creación.",
+  },
+  {
+    number: 26,
+    title: "La humanidad a imagen de Dios",
+    summary: "Dios anuncia la creación humana a su imagen y le confía representación responsable sobre la tierra.",
+    hebrew: "נַעֲשֶׂה אָדָם בְּצַלְמֵנוּ כִּדְמוּתֵנוּ",
+    transliteration: "Naaseh adam betzalmenu kidmutenu",
+    rvr: "Dios decide hacer al ser humano a su imagen y semejanza.",
+    ntv: "La humanidad es creada para reflejar a Dios y administrar su mundo.",
+    lbla: "Imagen, semejanza y dominio aparecen unidos en la vocación humana.",
+    exact: false,
+    exegesis: "El plural «hagamos» ha recibido varias explicaciones: deliberación divina, consejo celestial y lectura cristiana trinitaria. El versículo por sí solo no define toda la doctrina de la Trinidad, pero dentro del canon es compatible con la revelación posterior. La imagen implica dignidad y una misión representativa.",
+    language: "Tselem es imagen o representación; demut, semejanza. Adam puede designar a la humanidad colectivamente antes de funcionar como nombre propio. Radah describe ejercer dominio, que debe imitar el cuidado del Rey divino.",
+  },
+  {
+    number: 27,
+    title: "Varón y mujer, imagen divina",
+    summary: "Dios crea a la humanidad, masculina y femenina, compartiendo plenamente su imagen.",
+    hebrew: "זָכָר וּנְקֵבָה בָּרָא אֹתָם",
+    transliteration: "Zakhar uneqevah bara otam",
+    rvr: "La humanidad es creada a imagen de Dios: varón y mujer.",
+    ntv: "Ambos sexos reciben igual dignidad y la misma vocación ante el Creador.",
+    lbla: "La imagen divina pertenece conjuntamente al hombre y a la mujer.",
+    exact: false,
+    exegesis: "La forma poética repite tres veces el acto creador y coloca la imagen de Dios en el centro. Ningún sexo posee una imagen más plena. La unidad humana incluye diferencia sexual sin jerarquía de valor.",
+    language: "Zakhar y neqevah son términos sexuales complementarios. El pronombre plural «los» confirma que la expresión colectiva «el ser humano» comprende a ambos.",
+  },
+  {
+    number: 28,
+    title: "Bendición y mandato cultural",
+    summary: "Dios bendice a la humanidad para multiplicarse, llenar la tierra y administrarla responsablemente.",
+    hebrew: "מִלְאוּ אֶת־הָאָרֶץ וְכִבְשֻׁהָ",
+    transliteration: "Milu et-haaretz vekivshuha",
+    rvr: "La humanidad recibe fecundidad, dominio y responsabilidad sobre los seres vivos.",
+    ntv: "Dios encomienda desarrollar la vida humana y cuidar el mundo bajo su autoridad.",
+    lbla: "El mandato une bendición, expansión humana y gobierno de la creación.",
+    exact: false,
+    exegesis: "Sojuzgar y dominar no autorizan explotación destructiva. Como portadores de la imagen, los humanos representan al Rey cuyo gobierno produce orden y vida. El poder delegado permanece sujeto al carácter y mandato de Dios.",
+    language: "Kabash puede expresar someter; radah, gobernar. En este contexto anterior al pecado describen ordenar y administrar una tierra buena, no violencia contra ella.",
+  },
+  {
+    number: 29,
+    title: "La provisión de alimento",
+    summary: "Dios entrega plantas con semilla y frutos como alimento para la humanidad.",
+    hebrew: "נָתַתִּי לָכֶם",
+    transliteration: "Natati lakhem",
+    rvr: "Dios concede la vegetación y los frutos para alimento.",
+    ntv: "La provisión material aparece como un don anterior al esfuerzo humano.",
+    lbla: "El Creador sostiene a sus representantes con los recursos de la tierra.",
+    exact: false,
+    exegesis: "El mandato humano viene acompañado de provisión. El texto presenta originalmente una dieta vegetal; otros pasajes, especialmente Génesis 9, desarrollarán posteriormente la cuestión alimentaria. No debe aislarse este versículo del movimiento total del canon.",
+    language: "Natati es perfecto de natan, «he dado». La forma destaca que el alimento se recibe como don divino y no como posesión autónoma.",
+  },
+  {
+    number: 30,
+    title: "Dios alimenta a sus criaturas",
+    summary: "La vegetación también sostiene a los animales terrestres y a las aves.",
+    hebrew: "לְכָל־חַיַּת הָאָרֶץ",
+    transliteration: "Lekhol jayat haaretz",
+    rvr: "Dios provee alimento para toda criatura con aliento de vida.",
+    ntv: "El cuidado creador se extiende más allá de la humanidad.",
+    lbla: "Animales y aves participan de la provisión abundante de Dios.",
+    exact: false,
+    exegesis: "La providencia divina alcanza a toda la comunidad de criaturas. La humanidad ocupa una función singular, pero no es la única destinataria de la bondad del Creador.",
+    language: "Kol significa «todo» o «cada». La repetición amplía deliberadamente el alcance de la provisión a los distintos grupos de seres vivientes.",
+  },
+  {
+    number: 31,
+    title: "Todo era muy bueno",
+    summary: "Dios contempla la totalidad integrada de su obra y declara que es muy buena.",
+    hebrew: "טוֹב מְאֹד",
+    transliteration: "Tov meod",
+    rvr: "Dios evalúa el conjunto de lo creado como muy bueno.",
+    ntv: "La creación completa cumple abundantemente el propósito divino.",
+    lbla: "La aprobación final alcanza a la totalidad ordenada del mundo.",
+    exact: false,
+    exegesis: "La evaluación final es más intensa que las anteriores porque contempla el sistema completo: ámbitos, habitantes, relaciones y vocaciones. El mal de los capítulos siguientes no pertenece al diseño original de Dios; irrumpe en una creación inicialmente buena.",
+    language: "Meod intensifica tov: no solo bueno, sino muy bueno. Hashishi, «el sexto», aparece con artículo y cierra el clímax antes del reposo del séptimo día.",
+  },
 ];
 
 const connections = [
@@ -172,6 +527,8 @@ const connections = [
 export default function Home() {
   const [selectedVerse, setSelectedVerse] = useState(1);
   const [completedVerses, setCompletedVerses] = useState<number[]>([]);
+  const [activeBookId, setActiveBookId] = useState("GEN");
+  const [activeReference, setActiveReference] = useState("Génesis 1");
   const current = useMemo(
     () => verses.find((verse) => verse.number === selectedVerse) ?? verses[0],
     [selectedVerse],
@@ -197,11 +554,11 @@ export default function Home() {
         name: "set_genesis_verse_studied",
         title: "Actualizar progreso de Génesis",
         description:
-          "Marca o desmarca como estudiado uno de los versículos 1 al 5 de Génesis 1 y lo muestra en la interfaz.",
+          "Marca o desmarca como estudiado uno de los 31 versículos de Génesis 1 y lo muestra en la interfaz.",
         inputSchema: {
           type: "object",
           properties: {
-            verse: { type: "integer", minimum: 1, maximum: 5 },
+            verse: { type: "integer", minimum: 1, maximum: 31 },
             studied: { type: "boolean" },
           },
           required: ["verse", "studied"],
@@ -217,10 +574,10 @@ export default function Home() {
             input === null ||
             !Number.isInteger((input as { verse?: unknown }).verse) ||
             (input as { verse: number }).verse < 1 ||
-            (input as { verse: number }).verse > 5 ||
+            (input as { verse: number }).verse > 31 ||
             typeof (input as { studied?: unknown }).studied !== "boolean"
           ) {
-            throw new Error("El versículo debe estar entre 1 y 5 y «studied» debe ser verdadero o falso.");
+            throw new Error("El versículo debe estar entre 1 y 31 y «studied» debe ser verdadero o falso.");
           }
 
           const { verse, studied } = input as { verse: number; studied: boolean };
@@ -241,6 +598,28 @@ export default function Home() {
 
     return () => lifecycle.abort();
   }, []);
+
+  useEffect(() => {
+    function handleSelection(event: Event) {
+      const detail = (event as CustomEvent<{ bookId?: string; reference?: string }>).detail;
+      if (detail?.bookId) setActiveBookId(detail.bookId);
+      if (detail?.reference) setActiveReference(detail.reference);
+    }
+
+    window.addEventListener("bible-reader-selection", handleSelection);
+    return () => window.removeEventListener("bible-reader-selection", handleSelection);
+  }, []);
+
+  function openBook(book: string) {
+    const bookId = apiBookIds[book];
+    if (!bookId) return;
+    setActiveBookId(bookId);
+    setActiveReference(book);
+    window.dispatchEvent(new CustomEvent("bible-reader-navigate", { detail: { bookId } }));
+    const reader = document.getElementById("lector-biblico");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    reader?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+  }
 
   return (
     <SidebarProvider
@@ -272,14 +651,14 @@ export default function Home() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {group.books.map(([book, chapters]) => {
-                    const active = book === "Génesis";
+                    const active = apiBookIds[book] === activeBookId;
                     return (
                       <SidebarMenuItem key={book}>
                         <SidebarMenuButton
                           isActive={active}
-                          disabled={!active}
-                          aria-label={active ? `${book}, libro actual` : `${book}, ${chapters} capítulos, pendiente`}
-                          className="h-9 disabled:opacity-100 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
+                          onClick={() => openBook(book)}
+                          aria-label={`${book}, ${chapters} capítulos${active ? ", libro seleccionado" : ""}`}
+                          className="h-9 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
                         >
                           <span className={active ? "font-semibold" : "text-sidebar-foreground/76"}>{book}</span>
                         </SidebarMenuButton>
@@ -317,7 +696,7 @@ export default function Home() {
               <ChevronRight aria-hidden="true" className="hidden size-3 sm:block" />
               <span>Pentateuco</span>
             </div>
-            <p className="truncate text-sm font-semibold text-foreground sm:text-base">Génesis 1 · La creación</p>
+            <p className="truncate text-sm font-semibold text-foreground sm:text-base">Lectura bíblica · {activeReference}</p>
           </div>
           <div className="hidden items-center gap-1 sm:flex">
             <Button variant="outline" size="icon" disabled aria-label="Capítulo anterior">
@@ -364,9 +743,9 @@ export default function Home() {
               <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div>
                   <p id="verse-selector-title" className="text-sm font-semibold">Análisis versículo por versículo</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Primera unidad literaria · Génesis 1:1–5</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Capítulo completo · Génesis 1:1–31</p>
                 </div>
-                <div className="flex items-center gap-2" role="group" aria-label="Seleccionar versículo">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(2.75rem,1fr))] gap-2" role="group" aria-label="Seleccionar versículo">
                   {verses.map((verse) => (
                     <button
                       key={verse.number}
