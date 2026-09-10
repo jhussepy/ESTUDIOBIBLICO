@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { BibleReader } from "@/components/bible-reader";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -356,6 +357,8 @@ export default function Home() {
                 </div>
               </div>
             </section>
+
+            <BibleReader />
 
             <section aria-labelledby="verse-selector-title" className="mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5">
               <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">

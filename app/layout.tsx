@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +19,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        <Script id="api-bible-fums-bootstrap" strategy="beforeInteractive">
+          {`window.fumsData=window.fumsData||[];window.fums=window.fums||function(){window.fumsData.push(arguments);};`}
+        </Script>
+        <Script
+          src="https://pkg.api.bible/fumsV3.min.js"
+          strategy="afterInteractive"
+        />
+      </body>
     </html>
   );
 }

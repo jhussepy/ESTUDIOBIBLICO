@@ -225,6 +225,41 @@ button:not(:disabled), [role="button"]:not([aria-disabled="true"]) { cursor: poi
 }
 
 .scripture-quote::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--accent); }
+
+.api-scripture-content {
+  max-width: 72ch;
+  color: var(--foreground);
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: clamp(1.2rem, 1.5vw, 1.38rem);
+  line-height: 1.9;
+}
+
+.api-scripture-content p { margin-block: 1rem; }
+.api-scripture-content .v {
+  margin-inline-end: 0.35rem;
+  color: var(--accent-foreground);
+  font-family: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.65em;
+  font-weight: 700;
+  vertical-align: super;
+}
+.api-scripture-content .s,
+.api-scripture-content .s1,
+.api-scripture-content .s2 {
+  display: block;
+  margin-block: 1.6rem 0.7rem;
+  color: var(--foreground);
+  font-family: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.78em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.45;
+  text-transform: uppercase;
+}
+.api-scripture-content .q,
+.api-scripture-content .q1,
+.api-scripture-content .q2 { display: block; padding-inline-start: 1.5rem; }
+.api-scripture-content a { color: var(--primary); text-decoration: underline; text-underline-offset: 0.18em; }
 .reading-copy h3 { font-family: "Crimson Pro", Georgia, serif; font-size: 1.65rem; font-weight: 600; }
 .reading-copy > p { margin-top: 0.75rem; color: var(--muted-foreground); line-height: 1.75; }
 
