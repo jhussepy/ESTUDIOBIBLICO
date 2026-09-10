@@ -24,16 +24,16 @@ El contenido completo de traducciones bíblicas con copyright no se distribuye e
 ## Tecnología
 
 - React 19 y TypeScript
-- Next.js 16 sobre Vinext/Vite
+- Next.js 16 con App Router
 - Tailwind CSS 4
 - componentes accesibles basados en Base UI y shadcn
-- Cloudflare Workers para ejecución y alojamiento
+- despliegue optimizado para Vercel
 
 ## Desarrollo local
 
 Requisitos:
 
-- Node.js `>=22.13.0`
+- Node.js `22.x`
 - pnpm `11.19.0`
 
 ```bash
@@ -56,8 +56,11 @@ app/             interfaz y estilos globales
 components/ui/   componentes reutilizables
 design-system/   decisiones visuales del producto
 public/          recursos públicos
-scripts/         instalación, compilación y ejecución
 ```
+
+## Despliegue en Vercel
+
+Importa este repositorio en Vercel y conserva el preset **Next.js**. No es necesario configurar manualmente el directorio de salida: `next build` genera la carpeta `.next` que Vercel detecta automáticamente.
 
 ## Visión editorial
 
