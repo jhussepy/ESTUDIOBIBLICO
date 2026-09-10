@@ -167,7 +167,7 @@ export function BibleReader() {
           availableBooks.find((book) => book.id === requestedBook) ||
           availableBooks.find((book) => book.id === "GEN") ||
           availableBooks[0];
-        if (nextBook?.id === pendingBookId) pendingBookIdRef.current = null;
+        pendingBookIdRef.current = null;
         setBooks(availableBooks);
         setSelectedBookId(nextBook?.id || "");
 
@@ -237,12 +237,12 @@ export function BibleReader() {
       if (!bookId) return;
       const nextBook = books.find((book) => book.id === bookId);
       if (!nextBook) {
-        pendingBookIdRef.current = bookId;
+        pendingBookIdRef.current = booksLoading ? bookId : null;
         return;
       }
-      const nextChapterId = nextBook.chapters[0]?.id || "";
       pendingBookIdRef.current = null;
-      if (nextBook.id === selectedBookId && nextChapterId === selectedChapterId) return;
+      if (nextBook.id === selectedBookId) return;
+      const nextChapterId = nextBook.chapters[0]?.id || "";
       setSelectedBookId(nextBook.id);
       setSelectedChapterId(nextChapterId);
       setChapterLoading(Boolean(nextChapterId));
@@ -252,7 +252,7 @@ export function BibleReader() {
 
     window.addEventListener("bible-reader-navigate", handleNavigation);
     return () => window.removeEventListener("bible-reader-navigate", handleNavigation);
-  }, [books, selectedBookId, selectedChapterId]);
+  }, [books, booksLoading, selectedBookId]);
 
   function selectBook(bookId: string) {
     const nextBook = books.find((book) => book.id === bookId);
