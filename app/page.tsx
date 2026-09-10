@@ -770,12 +770,12 @@ export default function Home() {
             <BibleReader />
 
             <section aria-labelledby="verse-selector-title" className="mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5">
-              <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                 <div>
                   <p id="verse-selector-title" className="text-sm font-semibold">Análisis versículo por versículo</p>
                   <p className="mt-1 text-sm text-muted-foreground">Capítulo completo · Génesis 1:1–31</p>
                 </div>
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(2.75rem,1fr))] gap-2" role="group" aria-label="Seleccionar versículo">
+                <div className="grid w-full min-w-0 grid-cols-[repeat(auto-fill,minmax(2.75rem,1fr))] gap-2 sm:flex-1" role="group" aria-label="Seleccionar versículo">
                   {verses.map((verse) => (
                     <button
                       key={verse.number}
