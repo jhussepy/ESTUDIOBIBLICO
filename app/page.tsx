@@ -167,7 +167,9 @@ export default function Home() {
   const activeBookName =
     Object.entries(apiBookIds).find(([, bookId]) => bookId === activeBookId)?.[0] ?? activeBookId;
   const activeBookChapterCount =
-    canon.flatMap((group) => group.books).find(([book]) => apiBookIds[book] === activeBookId)?.[1] ??
+    canon
+      .flatMap((group) => group.books.map(([book, chapters]) => ({ book, chapters })))
+      .find(({ book }) => apiBookIds[book] === activeBookId)?.chapters ??
     activeStudy?.chapterCount ??
     0;
 
@@ -405,7 +407,7 @@ export default function Home() {
                   <p className="mt-1 text-sm text-muted-foreground">Capítulo completo · {activeStudy.bookName} {activeStudy.chapter}:1–{activeStudy.verses.length}</p>
                 </div>
                 <div className="grid w-full min-w-0 grid-cols-[repeat(auto-fill,minmax(2.75rem,1fr))] gap-2 sm:flex-1" role="group" aria-label="Seleccionar versículo">
-                  {verses.map((verse) => (
+                  {activeStudy.verses.map((verse) => (
                     <button
                       key={verse.number}
                       type="button"
