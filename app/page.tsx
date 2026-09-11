@@ -155,12 +155,16 @@ export default function Home() {
     () => getChapterStudy(activeBookId, activeChapterNumber),
     [activeBookId, activeChapterNumber],
   );
+  const activeVerseNumber =
+    activeStudy?.verses.some((verse) => verse.number === selectedVerse)
+      ? selectedVerse
+      : activeStudy?.verses[0]?.number ?? 1;
   const current = useMemo(
-    () => activeStudy?.verses.find((verse) => verse.number === selectedVerse) ?? activeStudy?.verses[0],
-    [activeStudy, selectedVerse],
+    () => activeStudy?.verses.find((verse) => verse.number === activeVerseNumber),
+    [activeStudy, activeVerseNumber],
   );
   const completedVerses = activeStudy ? completedByStudy[activeStudy.key] ?? [] : [];
-  const isComplete = completedVerses.includes(selectedVerse);
+  const isComplete = completedVerses.includes(activeVerseNumber);
   const chapterProgress = activeStudy?.verses.length
     ? (completedVerses.length / activeStudy.verses.length) * 100
     : 0;
@@ -177,9 +181,9 @@ export default function Home() {
     if (!activeStudy) return;
     setCompletedByStudy((progress) => {
       const currentVerses = progress[activeStudy.key] ?? [];
-      const nextVerses = currentVerses.includes(selectedVerse)
-        ? currentVerses.filter((verse) => verse !== selectedVerse)
-        : [...currentVerses, selectedVerse].sort((a, b) => a - b);
+      const nextVerses = currentVerses.includes(activeVerseNumber)
+        ? currentVerses.filter((verse) => verse !== activeVerseNumber)
+        : [...currentVerses, activeVerseNumber].sort((a, b) => a - b);
       return { ...progress, [activeStudy.key]: nextVerses };
     });
   }
@@ -269,9 +273,6 @@ export default function Home() {
   function openBook(book: string) {
     const bookId = apiBookIds[book];
     if (!bookId) return;
-    setActiveBookId(bookId);
-    setActiveChapterNumber(1);
-    setActiveReference(book);
     window.dispatchEvent(new CustomEvent("bible-reader-navigate", { detail: { bookId } }));
     const reader = document.getElementById("lector-biblico");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -412,7 +413,7 @@ export default function Home() {
                       key={verse.number}
                       type="button"
                       onClick={() => setSelectedVerse(verse.number)}
-                      aria-pressed={selectedVerse === verse.number}
+                      aria-pressed={activeVerseNumber === verse.number}
                       aria-label={`Estudiar ${activeStudy.bookName} ${activeStudy.chapter}:${verse.number}${completedVerses.includes(verse.number) ? ", estudiado" : ""}`}
                       className="verse-button"
                     >
@@ -519,8 +520,8 @@ export default function Home() {
               <div className="mt-5 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm text-muted-foreground" aria-live="polite">
                   {isComplete
-                    ? `${activeStudy.bookName} ${activeStudy.chapter}:${selectedVerse} marcado como estudiado.`
-                    : `Estudiando ${activeStudy.bookName} ${activeStudy.chapter}:${selectedVerse} de ${activeStudy.verses.length}.`}
+                    ? `${activeStudy.bookName} ${activeStudy.chapter}:${activeVerseNumber} marcado como estudiado.`
+                    : `Estudiando ${activeStudy.bookName} ${activeStudy.chapter}:${activeVerseNumber} de ${activeStudy.verses.length}.`}
                 </p>
                 <Button onClick={toggleCompleted} variant={isComplete ? "outline" : "default"} className="min-h-11 sm:min-w-52">
                   {isComplete && <Check aria-hidden="true" />}
