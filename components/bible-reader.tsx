@@ -114,6 +114,7 @@ export function BibleReader() {
     [books, selectedBookId],
   );
   const availableChapters = selectedBook?.chapters || [];
+  const selectedChapter = availableChapters.find((item) => item.id === selectedChapterId);
 
   const retry = useCallback(() => {
     setError(null);
@@ -226,10 +227,19 @@ export function BibleReader() {
     window.dispatchEvent(new CustomEvent("bible-reader-selection", {
       detail: {
         bookId: selectedBookId,
-        reference: chapter?.reference || selectedBook?.name || selectedBookId,
+        reference: chapter?.reference || selectedChapter?.reference || selectedBook?.name || selectedBookId,
+        chapterNumber:
+          Number.parseInt(selectedChapter?.number || chapter?.number || "", 10) || undefined,
       },
     }));
-  }, [chapter?.reference, selectedBook?.name, selectedBookId]);
+  }, [
+    chapter?.number,
+    chapter?.reference,
+    selectedBook?.name,
+    selectedBookId,
+    selectedChapter?.number,
+    selectedChapter?.reference,
+  ]);
 
   useEffect(() => {
     function handleNavigation(event: Event) {
