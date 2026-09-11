@@ -1,3 +1,5 @@
+import { genesis3to10Studies } from "./genesis-3-10";
+
 export interface VerseStudy {
   number: number;
   title: string;
@@ -829,6 +831,7 @@ export const chapterStudies: readonly ChapterStudy[] = [
       ["Apocalipsis 22:1–2", "El río y el árbol de la vida reaparecen en la consumación de la nueva creación."],
     ],
   },
+  ...genesis3to10Studies,
 ];
 
 export function getChapterStudy(bookId: string, chapter: number) {
