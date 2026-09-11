@@ -11,15 +11,15 @@ El proyecto propone un recorrido versículo por versículo con cuatro capas de a
 
 ## Estado actual
 
-La primera experiencia interactiva cubre **Génesis 1:1–5** e incluye:
+La experiencia interactiva ofrece lectura bíblica mediante API.Bible y estudios profundos de **Génesis 1–10**, con análisis individual de sus 267 versículos. Incluye:
 
 - navegación por los 66 libros y sus capítulos;
 - selector de versículos;
-- paneles de texto comparado, exégesis, teología y conexiones;
+- paneles de lectura, exégesis, lenguas bíblicas, teología y conexiones canónicas;
 - progreso de estudio por versículo durante la sesión;
 - diseño adaptable, modo oscuro y navegación accesible por teclado.
 
-El contenido completo de traducciones bíblicas con copyright no se distribuye en este repositorio. Las citas breves y comparaciones se presentan con fines de estudio; cualquier ampliación deberá respetar las licencias correspondientes.
+El contenido completo de traducciones bíblicas con copyright no se distribuye en este repositorio. La lectura autorizada se solicita a API.Bible y el análisis editorial es contenido original; cualquier ampliación deberá respetar las licencias correspondientes.
 
 ## Tecnología
 
