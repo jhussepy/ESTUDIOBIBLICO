@@ -215,7 +215,11 @@ export function BibleReader({ readingScale = "normal" }: { readingScale?: Readin
     params.set("bible", selectedBibleId);
     params.set("book", selectedBookId);
     params.set("chapter", selectedChapterId);
-    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}?${params.toString()}${window.location.hash}`,
+    );
   }, [selectedBibleId, selectedBookId, selectedChapterId]);
 
   useEffect(() => {
