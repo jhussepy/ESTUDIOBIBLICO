@@ -16,7 +16,11 @@ La experiencia interactiva ofrece lectura bíblica mediante API.Bible y estudios
 - navegación por los 66 libros y sus capítulos;
 - selector de versículos;
 - paneles de lectura, exégesis, lenguas bíblicas, teología y conexiones canónicas;
-- progreso de estudio por versículo durante la sesión;
+- progreso persistente por versículo y capítulo en el dispositivo;
+- marcadores y notas privadas con guardado automático;
+- enlaces compartibles que abren el versículo seleccionado;
+- tres tamaños de lectura y modo enfoque;
+- validación automática de capítulos y versículos durante la compilación;
 - diseño adaptable, modo oscuro y navegación accesible por teclado.
 
 El contenido completo de traducciones bíblicas con copyright no se distribuye en este repositorio. La lectura autorizada se solicita a API.Bible y el análisis editorial es contenido original; cualquier ampliación deberá respetar las licencias correspondientes.
