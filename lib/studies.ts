@@ -834,6 +834,40 @@ export const chapterStudies: readonly ChapterStudy[] = [
   ...genesis3to10Studies,
 ];
 
+function validateChapterStudies(studies: readonly ChapterStudy[]) {
+  const keys = new Set<string>();
+
+  for (const study of studies) {
+    if (keys.has(study.key)) throw new Error(`Estudio duplicado: ${study.key}`);
+    keys.add(study.key);
+
+    if (study.key !== `${study.bookId}-${study.chapter}`) {
+      throw new Error(`Clave inconsistente en ${study.key}`);
+    }
+    if (study.chapter < 1 || study.chapter > study.chapterCount) {
+      throw new Error(`Capítulo fuera de rango en ${study.key}`);
+    }
+    if (!study.title.trim() || !study.introduction.trim() || !study.doctrinalNote.trim()) {
+      throw new Error(`Metadatos incompletos en ${study.key}`);
+    }
+    if (study.theology.length < 3 || study.connections.length < 3) {
+      throw new Error(`Síntesis teológica insuficiente en ${study.key}`);
+    }
+
+    study.verses.forEach((verse, index) => {
+      const expected = index + 1;
+      if (verse.number !== expected) {
+        throw new Error(`${study.key}: falta o se repite el versículo ${expected}`);
+      }
+      if (!verse.title.trim() || !verse.summary.trim() || !verse.exegesis.trim() || !verse.language.trim()) {
+        throw new Error(`${study.key}:${verse.number} tiene contenido incompleto`);
+      }
+    });
+  }
+}
+
+validateChapterStudies(chapterStudies);
+
 export function getChapterStudy(bookId: string, chapter: number) {
   return chapterStudies.find((study) => study.bookId === bookId && study.chapter === chapter);
 }

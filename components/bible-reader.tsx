@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { ReadingScale } from "@/hooks/use-study-workspace";
 
 declare global {
   interface Window {
@@ -91,7 +92,7 @@ function initialParam(name: string) {
   return new URLSearchParams(window.location.search).get(name) || "";
 }
 
-export function BibleReader() {
+export function BibleReader({ readingScale = "normal" }: { readingScale?: ReadingScale }) {
   const [bibles, setBibles] = useState<BibleSummary[]>([]);
   const [books, setBooks] = useState<BookSummary[]>([]);
   const [chapter, setChapter] = useState<ChapterContent | null>(null);
@@ -243,7 +244,8 @@ export function BibleReader() {
 
   useEffect(() => {
     function handleNavigation(event: Event) {
-      const bookId = (event as CustomEvent<{ bookId?: string }>).detail?.bookId;
+      const detail = (event as CustomEvent<{ bookId?: string; chapterNumber?: number }>).detail;
+      const bookId = detail?.bookId;
       if (!bookId) return;
       const nextBook = books.find((book) => book.id === bookId);
       if (!nextBook) {
@@ -251,8 +253,13 @@ export function BibleReader() {
         return;
       }
       pendingBookIdRef.current = null;
-      if (nextBook.id === selectedBookId) return;
-      const nextChapterId = nextBook.chapters[0]?.id || "";
+      const requestedChapter = detail.chapterNumber
+        ? nextBook.chapters.find(
+            (item) => Number.parseInt(item.number, 10) === detail.chapterNumber,
+          )
+        : undefined;
+      const nextChapterId = requestedChapter?.id || nextBook.chapters[0]?.id || "";
+      if (nextBook.id === selectedBookId && nextChapterId === selectedChapterId) return;
       setSelectedBookId(nextBook.id);
       setSelectedChapterId(nextChapterId);
       setChapterLoading(Boolean(nextChapterId));
@@ -262,7 +269,7 @@ export function BibleReader() {
 
     window.addEventListener("bible-reader-navigate", handleNavigation);
     return () => window.removeEventListener("bible-reader-navigate", handleNavigation);
-  }, [books, booksLoading, selectedBookId]);
+  }, [books, booksLoading, selectedBookId, selectedChapterId]);
 
   function selectBook(bookId: string) {
     const nextBook = books.find((book) => book.id === bookId);
@@ -443,7 +450,7 @@ export function BibleReader() {
         )}
 
         {chapter && !chapterLoading && !error && (
-          <article aria-labelledby="active-chapter-title">
+          <article aria-labelledby="active-chapter-title" data-reading-scale={readingScale}>
             <div className="mb-5 flex flex-col gap-1 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{selectedBible?.abbreviation}</p>

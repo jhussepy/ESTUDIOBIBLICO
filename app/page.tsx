@@ -1,14 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import Link from "next/link";
 import {
+  ALargeSmall,
+  Bookmark,
+  BookmarkCheck,
   BookOpenText,
   Check,
   ChevronLeft,
   ChevronRight,
+  Copy,
+  Focus,
   Languages,
   LibraryBig,
   Milestone,
+  NotebookPen,
   ScrollText,
 } from "lucide-react";
 
@@ -36,7 +43,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getChapterStudy } from "@/lib/studies";
+import { useStudyWorkspace } from "@/hooks/use-study-workspace";
+import { chapterStudies, getChapterStudy } from "@/lib/studies";
 
 declare global {
   interface Document {
@@ -146,10 +154,21 @@ function CanonBookButton({
 
 export default function Home() {
   const [selectedVerse, setSelectedVerse] = useState(1);
-  const [completedByStudy, setCompletedByStudy] = useState<Record<string, number[]>>({});
   const [activeBookId, setActiveBookId] = useState("GEN");
   const [activeChapterNumber, setActiveChapterNumber] = useState(1);
   const [activeReference, setActiveReference] = useState("Génesis 1");
+  const [actionMessage, setActionMessage] = useState("");
+  const {
+    completedByStudy,
+    bookmarks,
+    notes,
+    preferences,
+    setCompletedVerses,
+    toggleBookmark,
+    setNote,
+    setReadingScale,
+    toggleFocusMode,
+  } = useStudyWorkspace();
 
   const activeStudy = useMemo(
     () => getChapterStudy(activeBookId, activeChapterNumber),
@@ -176,15 +195,111 @@ export default function Home() {
       .find(({ book }) => apiBookIds[book] === activeBookId)?.chapters ??
     activeStudy?.chapterCount ??
     0;
+  const availableVerseTotal = useMemo(
+    () => chapterStudies.reduce((total, study) => total + study.verses.length, 0),
+    [],
+  );
+  const completedVerseTotal = useMemo(
+    () =>
+      chapterStudies.reduce((total, study) => {
+        const validVerses = new Set(study.verses.map((verse) => verse.number));
+        const saved = (completedByStudy[study.key] ?? []).filter((verse) => validVerses.has(verse));
+        return total + new Set(saved).size;
+      }, 0),
+    [completedByStudy],
+  );
+  const completedChapterTotal = useMemo(
+    () =>
+      chapterStudies.filter(
+        (study) =>
+          study.verses.length > 0 &&
+          study.verses.every((verse) => completedByStudy[study.key]?.includes(verse.number)),
+      ).length,
+    [completedByStudy],
+  );
+  const canonStudyProgress = availableVerseTotal
+    ? (completedVerseTotal / availableVerseTotal) * 100
+    : 0;
+  const verseKey = activeStudy ? `${activeStudy.key}:${activeVerseNumber}` : "";
+  const isBookmarked = verseKey ? bookmarks.includes(verseKey) : false;
+  const activeNote = verseKey ? notes[verseKey] ?? "" : "";
+  const savedVerseLinks = useMemo(
+    () =>
+      bookmarks.flatMap((savedKey) => {
+        const separator = savedKey.lastIndexOf(":");
+        const studyKey = separator > 0 ? savedKey.slice(0, separator) : "";
+        const verse = Number.parseInt(savedKey.slice(separator + 1), 10);
+        const study = chapterStudies.find((item) => item.key === studyKey);
+        if (!study || !study.verses.some((item) => item.number === verse)) return [];
+        return [{
+          key: savedKey,
+          label: `${study.bookName} ${study.chapter}:${verse}`,
+          href: `/?book=${study.bookId}&chapter=${study.bookId}.${study.chapter}&verse=${verse}#estudio-versiculo`,
+          bookId: study.bookId,
+          chapter: study.chapter,
+          verse,
+        }];
+      }),
+    [bookmarks],
+  );
+
+  useEffect(() => {
+    if (!activeStudy) return;
+    const requestedVerse = Number.parseInt(
+      new URLSearchParams(window.location.search).get("verse") || "",
+      10,
+    );
+    const nextVerse = activeStudy.verses.some((verse) => verse.number === requestedVerse)
+      ? requestedVerse
+      : activeStudy.verses[0]?.number ?? 1;
+    const frame = window.requestAnimationFrame(() => setSelectedVerse(nextVerse));
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeStudy]);
+
+  function selectVerse(verse: number) {
+    setSelectedVerse(verse);
+    setActionMessage("");
+    const params = new URLSearchParams(window.location.search);
+    params.set("verse", String(verse));
+    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+  }
+
+  async function copyVerseLink() {
+    if (!activeStudy) return;
+    const params = new URLSearchParams(window.location.search);
+    params.set("book", activeStudy.bookId);
+    params.set("chapter", `${activeStudy.bookId}.${activeStudy.chapter}`);
+    params.set("verse", String(activeVerseNumber));
+    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}#estudio-versiculo`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setActionMessage(`Enlace de ${activeStudy.bookName} ${activeStudy.chapter}:${activeVerseNumber} copiado.`);
+    } catch {
+      setActionMessage("No se pudo copiar automáticamente. Copia la dirección del navegador.");
+    }
+  }
+
+  function openSavedVerse(saved: (typeof savedVerseLinks)[number]) {
+    const params = new URLSearchParams(window.location.search);
+    params.set("book", saved.bookId);
+    params.set("chapter", `${saved.bookId}.${saved.chapter}`);
+    params.set("verse", String(saved.verse));
+    window.history.pushState(null, "", `/?${params.toString()}#estudio-versiculo`);
+    setSelectedVerse(saved.verse);
+    setActionMessage("");
+    window.dispatchEvent(new CustomEvent("bible-reader-navigate", {
+      detail: { bookId: saved.bookId, chapterNumber: saved.chapter },
+    }));
+    document.getElementById("lector-biblico")?.scrollIntoView({ block: "start" });
+  }
 
   function toggleCompleted() {
     if (!activeStudy) return;
-    setCompletedByStudy((progress) => {
-      const currentVerses = progress[activeStudy.key] ?? [];
+    setCompletedVerses(activeStudy.key, (currentVerses) => {
       const nextVerses = currentVerses.includes(activeVerseNumber)
         ? currentVerses.filter((verse) => verse !== activeVerseNumber)
         : [...currentVerses, activeVerseNumber].sort((a, b) => a - b);
-      return { ...progress, [activeStudy.key]: nextVerses };
+      return nextVerses;
     });
   }
 
@@ -233,11 +348,10 @@ export default function Home() {
 
           const { verse, studied } = input as { verse: number; studied: boolean };
           setSelectedVerse(verse);
-          setCompletedByStudy((progress) => {
-            const currentVerses = progress[studyKey] ?? [];
+          setCompletedVerses(studyKey, (currentVerses) => {
             const next = currentVerses.filter((item) => item !== verse);
             if (studied) next.push(verse);
-            return { ...progress, [studyKey]: next.sort((a, b) => a - b) };
+            return next.sort((a, b) => a - b);
           });
           await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
           return {
@@ -252,7 +366,7 @@ export default function Home() {
     }
 
     return () => lifecycle.abort();
-  }, [activeStudy]);
+  }, [activeStudy, setCompletedVerses]);
 
   useEffect(() => {
     function handleSelection(event: Event) {
@@ -262,7 +376,10 @@ export default function Home() {
       if (detail?.bookId) setActiveBookId(detail.bookId);
       if (detail?.reference) setActiveReference(detail.reference);
       if (detail?.chapterNumber && detail.chapterNumber > 0) {
-        setActiveChapterNumber(detail.chapterNumber);
+        setActiveChapterNumber((currentChapter) => {
+          if (currentChapter !== detail.chapterNumber) setSelectedVerse(1);
+          return detail.chapterNumber ?? currentChapter;
+        });
       }
     }
 
@@ -333,12 +450,18 @@ export default function Home() {
         <SidebarFooter className="p-4">
           <div className="rounded-xl border border-sidebar-border bg-sidebar-accent/65 p-3.5">
             <div className="mb-2 flex items-center justify-between text-xs">
-              <span className="font-semibold">Progreso del canon</span>
-              <span className="tabular-nums text-sidebar-foreground/60">0 / 1.189</span>
+              <span className="font-semibold">Estudios disponibles</span>
+              <span className="tabular-nums text-sidebar-foreground/72">{completedChapterTotal} / {chapterStudies.length}</span>
             </div>
-            <Progress value={0} aria-label="Progreso total: cero de 1.189 capítulos" className="h-1.5" />
-            <p className="mt-2 text-xs leading-relaxed text-sidebar-foreground/58">Recorrido canónico: Génesis → Apocalipsis</p>
+            <Progress value={canonStudyProgress} aria-label={`${completedVerseTotal} de ${availableVerseTotal} versículos disponibles estudiados`} className="h-1.5" />
+            <p className="mt-2 text-xs leading-relaxed text-sidebar-foreground/68">{completedVerseTotal} de {availableVerseTotal} versículos · guardado en este dispositivo</p>
           </div>
+          <Link
+            href="/metodologia"
+            className="mt-2 flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-sidebar-foreground/82 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-sidebar-ring/45"
+          >
+            <ScrollText aria-hidden="true" className="size-4" /> Metodología editorial
+          </Link>
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
@@ -355,6 +478,15 @@ export default function Home() {
             <p className="truncate text-sm font-semibold text-foreground sm:text-base">Lectura bíblica · {activeReference}</p>
           </div>
           <div className="hidden items-center gap-1 sm:flex">
+            <Button
+              variant={preferences.focusMode ? "default" : "outline"}
+              size="sm"
+              onClick={toggleFocusMode}
+              aria-pressed={preferences.focusMode}
+              className="min-h-9"
+            >
+              <Focus aria-hidden="true" /> {preferences.focusMode ? "Salir del enfoque" : "Modo enfoque"}
+            </Button>
             <Button variant="outline" size="icon" disabled aria-label="Capítulo anterior">
               <ChevronLeft aria-hidden="true" />
             </Button>
@@ -367,7 +499,7 @@ export default function Home() {
           </div>
         </header>
 
-        <div className="mx-auto grid w-full max-w-[1500px] grid-cols-1 gap-6 px-4 py-6 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,1fr)_18.5rem] xl:gap-8">
+        <div className={`mx-auto grid w-full grid-cols-1 gap-6 px-4 py-6 sm:px-6 lg:px-8 xl:gap-8 ${preferences.focusMode ? "max-w-[1100px]" : "max-w-[1500px] xl:grid-cols-[minmax(0,1fr)_18.5rem]"}`}>
           <div className="min-w-0">
             <section aria-labelledby="chapter-title" className="chapter-masthead overflow-hidden rounded-2xl border border-border bg-card">
               <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:p-9">
@@ -376,7 +508,7 @@ export default function Home() {
                     <Badge variant="outline" className="border-primary/25 bg-primary/7 text-primary">{activeBookName.toUpperCase()}</Badge>
                     <Badge variant="outline" className="border-border bg-background/70">Capítulo {activeChapterNumber}</Badge>
                     <Badge variant="outline" className="border-border bg-background/70">
-                      {activeStudy ? activeStudy.verses.length + " versículos estudiados" : "Estudio en preparación"}
+                      {activeStudy ? activeStudy.verses.length + " versículos analizados" : "Estudio en preparación"}
                     </Badge>
                   </div>
                   <p className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-accent-foreground">
@@ -398,10 +530,10 @@ export default function Home() {
               </div>
             </section>
 
-            <BibleReader />
+            <BibleReader readingScale={preferences.readingScale} />
 
             {activeStudy && current ? (
-            <section aria-labelledby="verse-selector-title" className="mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5">
+            <section id="estudio-versiculo" aria-labelledby="verse-selector-title" className={`study-scale-${preferences.readingScale} scroll-mt-20 mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5`}>
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                 <div>
                   <p id="verse-selector-title" className="text-sm font-semibold">Análisis versículo por versículo</p>
@@ -412,7 +544,7 @@ export default function Home() {
                     <button
                       key={verse.number}
                       type="button"
-                      onClick={() => setSelectedVerse(verse.number)}
+                      onClick={() => selectVerse(verse.number)}
                       aria-pressed={activeVerseNumber === verse.number}
                       aria-label={`Estudiar ${activeStudy.bookName} ${activeStudy.chapter}:${verse.number}${completedVerses.includes(verse.number) ? ", estudiado" : ""}`}
                       className="verse-button"
@@ -426,12 +558,61 @@ export default function Home() {
 
               <div className="grid gap-5 border-t border-border pt-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
                 <div className="min-w-0">
-                  <div className="mb-5 flex items-start gap-4">
-                    <span className="verse-number" aria-hidden="true">{current.number}</span>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{activeStudy.bookName} {activeStudy.chapter}:{current.number}</p>
-                      <h2 className="mt-1 font-serif text-2xl font-semibold tracking-tight sm:text-3xl">{current.title}</h2>
-                      <p className="mt-2 max-w-[70ch] leading-7 text-muted-foreground">{current.summary}</p>
+                  <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex items-start gap-4">
+                      <span className="verse-number" aria-hidden="true">{current.number}</span>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{activeStudy.bookName} {activeStudy.chapter}:{current.number}</p>
+                        <h2 className="mt-1 font-serif text-2xl font-semibold tracking-tight sm:text-3xl">{current.title}</h2>
+                        <p className="mt-2 max-w-[70ch] leading-7 text-muted-foreground">{current.summary}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2" aria-label="Herramientas del versículo">
+                      <Button
+                        type="button"
+                        variant={isBookmarked ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => toggleBookmark(verseKey)}
+                        aria-pressed={isBookmarked}
+                        className="min-h-11"
+                      >
+                        {isBookmarked ? <BookmarkCheck aria-hidden="true" /> : <Bookmark aria-hidden="true" />}
+                        {isBookmarked ? "Guardado" : "Guardar"}
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" onClick={copyVerseLink} className="min-h-11">
+                        <Copy aria-hidden="true" /> Copiar enlace
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="mb-5 flex flex-col gap-3 rounded-xl border border-border bg-muted/35 p-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-2 text-sm font-semibold">
+                      <ALargeSmall aria-hidden="true" className="size-4 text-primary" /> Tamaño de lectura
+                    </div>
+                    <div className="flex flex-wrap gap-2" role="group" aria-label="Tamaño del texto y modo de lectura">
+                      {(["small", "normal", "large"] as const).map((scale, index) => (
+                        <Button
+                          key={scale}
+                          type="button"
+                          variant={preferences.readingScale === scale ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setReadingScale(scale)}
+                          aria-pressed={preferences.readingScale === scale}
+                          className="min-h-11 min-w-11"
+                        >
+                          {index === 0 ? "A−" : index === 1 ? "A" : "A+"}
+                        </Button>
+                      ))}
+                      <Button
+                        type="button"
+                        variant={preferences.focusMode ? "default" : "outline"}
+                        size="sm"
+                        onClick={toggleFocusMode}
+                        aria-pressed={preferences.focusMode}
+                        className="min-h-11 sm:hidden"
+                      >
+                        <Focus aria-hidden="true" /> {preferences.focusMode ? "Salir" : "Enfoque"}
+                      </Button>
                     </div>
                   </div>
 
@@ -506,6 +687,26 @@ export default function Home() {
                       </div>
                     </TabsContent>
                   </Tabs>
+
+                  <section className="mt-5 rounded-xl border border-border bg-muted/30 p-4" aria-labelledby="personal-note-title">
+                    <div className="flex items-center gap-2">
+                      <NotebookPen aria-hidden="true" className="size-4 text-primary" />
+                      <h3 id="personal-note-title" className="font-semibold">Mi nota privada</h3>
+                    </div>
+                    <label htmlFor="verse-note" className="mt-2 block text-sm text-muted-foreground">
+                      Reflexión sobre {activeStudy.bookName} {activeStudy.chapter}:{activeVerseNumber}
+                    </label>
+                    <textarea
+                      id="verse-note"
+                      value={activeNote}
+                      onChange={(event) => setNote(verseKey, event.target.value)}
+                      rows={4}
+                      maxLength={4000}
+                      placeholder="Escribe aquí tu observación, pregunta o aplicación…"
+                      className="mt-2 min-h-28 w-full resize-y rounded-lg border border-input bg-background px-3 py-3 text-base leading-6 outline-none transition-shadow focus-visible:ring-3 focus-visible:ring-ring/35"
+                    />
+                    <p className="mt-2 text-xs text-muted-foreground">Guardado automáticamente en este dispositivo · {activeNote.length}/4000</p>
+                  </section>
                 </div>
 
                 <aside className="rounded-xl border border-border bg-muted/45 p-4">
@@ -519,9 +720,9 @@ export default function Home() {
 
               <div className="mt-5 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm text-muted-foreground" aria-live="polite">
-                  {isComplete
+                  {actionMessage || (isComplete
                     ? `${activeStudy.bookName} ${activeStudy.chapter}:${activeVerseNumber} marcado como estudiado.`
-                    : `Estudiando ${activeStudy.bookName} ${activeStudy.chapter}:${activeVerseNumber} de ${activeStudy.verses.length}.`}
+                    : `Estudiando ${activeStudy.bookName} ${activeStudy.chapter}:${activeVerseNumber} de ${activeStudy.verses.length}.`)}
                 </p>
                 <Button onClick={toggleCompleted} variant={isComplete ? "outline" : "default"} className="min-h-11 sm:min-w-52">
                   {isComplete && <Check aria-hidden="true" />}
@@ -536,13 +737,13 @@ export default function Home() {
                 Estudio profundo en preparación
               </h2>
               <p className="mt-3 max-w-[68ch] leading-7 text-muted-foreground">
-                Puedes leer {activeReference} completo en el lector superior. El análisis versículo por versículo se incorporará siguiendo el orden canónico; actualmente están disponibles Génesis 1 y Génesis 2.
+                Puedes leer {activeReference} completo en el lector superior. El análisis versículo por versículo se incorporará siguiendo el orden canónico; actualmente están disponibles Génesis 1–10.
               </p>
             </section>
             )}
           </div>
 
-          <aside className="space-y-5 xl:sticky xl:top-22 xl:self-start" aria-label="Ruta y progreso del estudio">
+          {!preferences.focusMode && <aside className="space-y-5 xl:sticky xl:top-22 xl:self-start" aria-label="Ruta y progreso del estudio">
             <section className="rounded-2xl border border-border bg-card p-5">
               <div className="flex items-center gap-3">
                 <div className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground">
@@ -583,7 +784,41 @@ export default function Home() {
                 value={chapterProgress}
                 aria-label={`${completedVerses.length} de ${activeStudy?.verses.length ?? 0} versículos estudiados`}
               />
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">Cada versículo completado se conservará durante esta sesión de estudio.</p>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">El progreso se conserva en este dispositivo para tus próximas visitas.</p>
+            </section>
+
+            <section className="rounded-2xl border border-border bg-card p-5" aria-labelledby="saved-verses-title">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <BookmarkCheck aria-hidden="true" className="size-4 text-primary" />
+                  <h2 id="saved-verses-title" className="font-semibold">Mi espacio</h2>
+                </div>
+                <span className="text-xs tabular-nums text-muted-foreground">{savedVerseLinks.length} guardados</span>
+              </div>
+              {savedVerseLinks.length ? (
+                <ul className="mt-3 space-y-2">
+                  {savedVerseLinks.slice(-5).reverse().map((saved) => (
+                    <li key={saved.key}>
+                      <Link
+                        href={saved.href}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          openSavedVerse(saved);
+                        }}
+                        className="flex min-h-11 items-center justify-between rounded-lg border border-border bg-muted/35 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/35"
+                      >
+                        {saved.label}
+                        <ChevronRight aria-hidden="true" className="size-4" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">Guarda un versículo para volver rápidamente a su estudio.</p>
+              )}
+              <p className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">
+                {Object.values(notes).filter((note) => note.trim()).length} notas privadas
+              </p>
             </section>
 
             <section className="rounded-2xl bg-foreground p-5 text-background">
@@ -604,7 +839,7 @@ export default function Home() {
               <p className="mt-3 text-sm leading-6 text-muted-foreground">RVR1960 como versión principal, acompañada por NTV y LBLA, con consulta del hebreo, arameo y griego.</p>
               <p className="mt-3 border-t border-border pt-3 text-xs leading-5 text-muted-foreground">La publicación de capítulos completos de traducciones protegidas requerirá licencia o una fuente autorizada.</p>
             </section>
-          </aside>
+          </aside>}
         </div>
       </SidebarInset>
     </SidebarProvider>
