@@ -19,8 +19,14 @@ import {
 } from "@/lib/editorial";
 
 export const metadata: Metadata = {
-  title: "Fuentes y criterios editoriales | Academia Bíblica",
+  title: "Fuentes y criterios editoriales",
   description: "Bibliografía, estados de revisión y criterios de citación de los estudios bíblicos.",
+  alternates: { canonical: "/fuentes" },
+  openGraph: {
+    title: "Fuentes y criterios editoriales",
+    description: "Bibliografía y criterios de transparencia de la Academia Bíblica.",
+    url: "/fuentes",
+  },
 };
 
 const categories: readonly SourceCategory[] = [

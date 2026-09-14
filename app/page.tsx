@@ -23,6 +23,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { BibleReader } from "@/components/bible-reader";
+import { StudySearch } from "@/components/study-search";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -52,6 +53,8 @@ import {
   getEditorialRecord,
   getSourcesForStudy,
 } from "@/lib/editorial";
+import { getStudyGuide } from "@/lib/study-guides";
+import { type StudySearchResult } from "@/lib/study-search";
 import { chapterStudies, getChapterStudy } from "@/lib/studies";
 
 declare global {
@@ -160,11 +163,21 @@ function CanonBookButton({
   );
 }
 
-export default function Home() {
+interface HomeProps {
+  initialBookId?: string;
+  initialChapterNumber?: number;
+  initialReference?: string;
+}
+
+export default function Home({
+  initialBookId = "GEN",
+  initialChapterNumber = 1,
+  initialReference = "Génesis 1",
+}: HomeProps) {
   const [selectedVerse, setSelectedVerse] = useState(1);
-  const [activeBookId, setActiveBookId] = useState("GEN");
-  const [activeChapterNumber, setActiveChapterNumber] = useState(1);
-  const [activeReference, setActiveReference] = useState("Génesis 1");
+  const [activeBookId, setActiveBookId] = useState(initialBookId);
+  const [activeChapterNumber, setActiveChapterNumber] = useState(initialChapterNumber);
+  const [activeReference, setActiveReference] = useState(initialReference);
   const [actionMessage, setActionMessage] = useState("");
   const pendingStudyScrollRef = useRef(false);
   const {
@@ -183,6 +196,7 @@ export default function Home() {
     () => getChapterStudy(activeBookId, activeChapterNumber),
     [activeBookId, activeChapterNumber],
   );
+  const activeGuide = activeStudy ? getStudyGuide(activeStudy.key) : undefined;
   const activeVerseNumber =
     activeStudy?.verses.some((verse) => verse.number === selectedVerse)
       ? selectedVerse
@@ -312,6 +326,28 @@ export default function Home() {
     } else {
       pendingStudyScrollRef.current = true;
     }
+  }
+
+  function openSearchResult(result: StudySearchResult) {
+    const params = new URLSearchParams(window.location.search);
+    params.set("book", result.bookId);
+    params.set("chapter", `${result.bookId}.${result.chapter}`);
+    params.set("verse", String(result.verse));
+    window.history.pushState(null, "", `/?${params.toString()}#estudio-versiculo`);
+    setSelectedVerse(result.verse);
+    setActionMessage(`Abriendo ${result.reference}: ${result.title}.`);
+    pendingStudyScrollRef.current = true;
+    window.dispatchEvent(new CustomEvent("bible-reader-navigate", {
+      detail: { bookId: result.bookId, chapterNumber: result.chapter },
+    }));
+
+    window.requestAnimationFrame(() => {
+      const studySection = document.getElementById("estudio-versiculo");
+      if (!studySection) return;
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      studySection.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      pendingStudyScrollRef.current = false;
+    });
   }
 
   useEffect(() => {
@@ -455,6 +491,26 @@ export default function Home() {
     reader?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
   }
 
+  function navigateChapter(direction: -1 | 1) {
+    const nextChapter = activeChapterNumber + direction;
+    if (nextChapter < 1 || nextChapter > activeBookChapterCount) return;
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("book", activeBookId);
+    params.set("chapter", `${activeBookId}.${nextChapter}`);
+    params.delete("verse");
+    window.history.pushState(null, "", `/?${params.toString()}`);
+    setSelectedVerse(1);
+    setActionMessage("");
+    window.dispatchEvent(new CustomEvent("bible-reader-navigate", {
+      detail: { bookId: activeBookId, chapterNumber: nextChapter },
+    }));
+
+    const reader = document.getElementById("lector-biblico");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    reader?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+  }
+
   return (
     <SidebarProvider
       style={{ "--sidebar-width": "18rem" } as CSSProperties}
@@ -552,13 +608,28 @@ export default function Home() {
             >
               <Focus aria-hidden="true" /> {preferences.focusMode ? "Salir del enfoque" : "Modo enfoque"}
             </Button>
-            <Button variant="outline" size="icon" disabled aria-label="Capítulo anterior">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigateChapter(-1)}
+              disabled={activeChapterNumber <= 1}
+              aria-label="Ir al capítulo anterior"
+            >
               <ChevronLeft aria-hidden="true" />
             </Button>
-            <Button variant="outline" className="min-w-28" disabled>
+            <div
+              className="flex min-h-9 min-w-28 items-center justify-center rounded-md border border-border px-3 text-sm font-medium tabular-nums"
+              aria-live="polite"
+            >
               Capítulo {activeChapterNumber} de {activeBookChapterCount || "—"}
-            </Button>
-            <Button variant="outline" size="icon" disabled aria-label="Capítulo siguiente, disponible al completar el estudio">
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigateChapter(1)}
+              disabled={!activeBookChapterCount || activeChapterNumber >= activeBookChapterCount}
+              aria-label="Ir al capítulo siguiente"
+            >
               <ChevronRight aria-hidden="true" />
             </Button>
           </div>
@@ -600,7 +671,15 @@ export default function Home() {
               </div>
             </section>
 
-            <BibleReader readingScale={preferences.readingScale} />
+            <BibleReader
+              readingScale={preferences.readingScale}
+              initialBookId={initialBookId}
+              initialChapterNumber={initialChapterNumber}
+            />
+
+            <div className="mt-6">
+              <StudySearch studies={chapterStudies} onSelect={openSearchResult} />
+            </div>
 
             {activeStudy && current ? (
             <section id="estudio-versiculo" aria-labelledby="verse-selector-title" className={`study-scale-${preferences.readingScale} scroll-mt-20 mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5`}>
@@ -692,6 +771,7 @@ export default function Home() {
                       <TabsTrigger value="exegesis" className="min-h-11 px-3">Exégesis</TabsTrigger>
                       <TabsTrigger value="teologia" className="min-h-11 px-3">Teología</TabsTrigger>
                       <TabsTrigger value="conexiones" className="min-h-11 px-3">Conexiones</TabsTrigger>
+                      <TabsTrigger value="guia" className="min-h-11 px-3">Guía del capítulo</TabsTrigger>
                       <TabsTrigger value="fuentes" className="min-h-11 px-3">Fuentes</TabsTrigger>
                     </TabsList>
 
@@ -756,6 +836,78 @@ export default function Home() {
                           </div>
                         ))}
                       </div>
+                    </TabsContent>
+
+                    <TabsContent value="guia" className="pt-5">
+                      {activeGuide && (
+                        <div className="space-y-5">
+                          <section className="rounded-xl border border-primary/25 bg-primary/7 p-4" aria-labelledby="guide-thesis-title">
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">{activeGuide.genre}</p>
+                            <h3 id="guide-thesis-title" className="mt-1 font-serif text-2xl font-semibold">Tesis del capítulo</h3>
+                            <p className="mt-2 leading-7 text-muted-foreground">{activeGuide.thesis}</p>
+                            <p className="mt-3 border-t border-primary/15 pt-3 text-sm leading-6 text-muted-foreground">
+                              <strong className="text-foreground">Contexto literario:</strong> {activeGuide.literaryContext}
+                            </p>
+                          </section>
+
+                          <section aria-labelledby="guide-outline-title">
+                            <h3 id="guide-outline-title" className="font-serif text-2xl font-semibold">Estructura del texto</h3>
+                            <ol className="mt-3 grid gap-3 lg:grid-cols-3">
+                              {activeGuide.outline.map((item, index) => (
+                                <li key={item.range} className="rounded-xl border border-border p-4">
+                                  <span className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+                                    {index + 1}. {item.range}
+                                  </span>
+                                  <h4 className="mt-2 font-semibold">{item.title}</h4>
+                                  <p className="mt-1 text-sm leading-6 text-muted-foreground">{item.focus}</p>
+                                </li>
+                              ))}
+                            </ol>
+                          </section>
+
+                          <section aria-labelledby="guide-terms-title">
+                            <h3 id="guide-terms-title" className="font-serif text-2xl font-semibold">Términos clave</h3>
+                            <div className="mt-3 divide-y divide-border rounded-xl border border-border">
+                              {activeGuide.keyTerms.map((term) => (
+                                <div key={term.transliteration} className="grid gap-2 p-4 sm:grid-cols-[8rem_10rem_1fr] sm:items-baseline">
+                                  <p className="font-serif text-2xl" lang="he" dir="rtl">{term.original}</p>
+                                  <p className="font-semibold text-primary">{term.transliteration}</p>
+                                  <p className="text-sm leading-6 text-muted-foreground">{term.meaning}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </section>
+
+                          <div className="grid gap-4 lg:grid-cols-2">
+                            <section className="rounded-xl border border-border p-4" aria-labelledby="guide-application-title">
+                              <h3 id="guide-application-title" className="font-serif text-xl font-semibold">Aplicaciones responsables</h3>
+                              <ul className="mt-3 space-y-2">
+                                {activeGuide.applications.map((application) => (
+                                  <li key={application} className="flex gap-3 text-sm leading-6 text-muted-foreground">
+                                    <Check aria-hidden="true" className="mt-1 size-4 shrink-0 text-primary" />
+                                    {application}
+                                  </li>
+                                ))}
+                              </ul>
+                            </section>
+                            <section className="rounded-xl border border-border p-4" aria-labelledby="guide-questions-title">
+                              <h3 id="guide-questions-title" className="font-serif text-xl font-semibold">Preguntas para profundizar</h3>
+                              <ol className="mt-3 space-y-2">
+                                {activeGuide.reflectionQuestions.map((question, index) => (
+                                  <li key={question} className="flex gap-3 text-sm leading-6 text-muted-foreground">
+                                    <span className="font-semibold text-primary">{index + 1}.</span>
+                                    {question}
+                                  </li>
+                                ))}
+                              </ol>
+                            </section>
+                          </div>
+
+                          <aside className="rounded-xl border border-accent/35 bg-accent/9 p-4 text-sm leading-6">
+                            <strong>Guardarraíl interpretativo:</strong> {activeGuide.interpretiveGuardrail}
+                          </aside>
+                        </div>
+                      )}
                     </TabsContent>
 
                     <TabsContent value="fuentes" className="pt-5">
