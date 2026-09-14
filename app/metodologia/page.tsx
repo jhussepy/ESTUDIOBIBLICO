@@ -1,5 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, BookOpenCheck, GitBranch, LibraryBig, Scale, ShieldCheck } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Metodología editorial",
+  description: "Método exegético, canónico y pastoral aplicado a cada estudio de la Academia Bíblica.",
+  alternates: { canonical: "/metodologia" },
+  openGraph: {
+    title: "Metodología editorial",
+    description: "Cómo se investiga, revisa y publica cada estudio bíblico.",
+    url: "/metodologia",
+  },
+};
 
 const principles = [
   {
