@@ -218,6 +218,28 @@ export function isValidEditorialDate(value: string) {
   );
 }
 
+const editorialMonthLabels = [
+  "ene",
+  "feb",
+  "mar",
+  "abr",
+  "may",
+  "jun",
+  "jul",
+  "ago",
+  "sept",
+  "oct",
+  "nov",
+  "dic",
+] as const;
+
+export function formatEditorialDate(value: string) {
+  if (!isValidEditorialDate(value)) return value;
+  const [year, month, day] = value.split("-");
+  const monthLabel = editorialMonthLabels[Number.parseInt(month, 10) - 1];
+  return `${Number.parseInt(day, 10)} ${monthLabel} ${year}`;
+}
+
 export function getEditorialRecord(studyKey: string) {
   return editorialIndex.get(studyKey);
 }
