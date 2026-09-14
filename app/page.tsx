@@ -46,7 +46,12 @@ import {
 } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useStudyWorkspace } from "@/hooks/use-study-workspace";
-import { editorialStatusMeta, getEditorialRecord, getSourcesForStudy } from "@/lib/editorial";
+import {
+  editorialStatusMeta,
+  getEditorialRecord,
+  getSourcesForStudy,
+  isValidEditorialDate,
+} from "@/lib/editorial";
 import { chapterStudies, getChapterStudy } from "@/lib/studies";
 
 declare global {
@@ -132,8 +137,8 @@ const editorialDateFormatter = new Intl.DateTimeFormat("es-ES", {
 });
 
 function formatEditorialDate(value: string) {
-  const date = new Date(`${value}T00:00:00Z`);
-  return Number.isNaN(date.getTime()) ? value : editorialDateFormatter.format(date);
+  if (!isValidEditorialDate(value)) return value;
+  return editorialDateFormatter.format(new Date(`${value}T00:00:00Z`));
 }
 
 function CanonBookButton({

@@ -200,6 +200,22 @@ export const chapterEditorialRecords: readonly ChapterEditorialRecord[] = Array.
 const sourceIndex = new Map(academicSources.map((source) => [source.id, source]));
 const editorialIndex = new Map(chapterEditorialRecords.map((record) => [record.studyKey, record]));
 
+export function isValidEditorialDate(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+
+  const year = Number.parseInt(match[1], 10);
+  const month = Number.parseInt(match[2], 10);
+  const day = Number.parseInt(match[3], 10);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+}
+
 export function getEditorialRecord(studyKey: string) {
   return editorialIndex.get(studyKey);
 }
@@ -220,6 +236,9 @@ export function validateEditorialRecords(availableStudyKeys: readonly string[]) 
   for (const record of chapterEditorialRecords) {
     if (!available.has(record.studyKey)) throw new Error(`Registro editorial sin estudio: ${record.studyKey}`);
     if (seen.has(record.studyKey)) throw new Error(`Registro editorial duplicado: ${record.studyKey}`);
+    if (!isValidEditorialDate(record.updatedAt)) {
+      throw new Error(`Fecha editorial inválida en ${record.studyKey}: ${record.updatedAt}`);
+    }
     seen.add(record.studyKey);
 
     for (const sourceId of record.sourceIds) {
