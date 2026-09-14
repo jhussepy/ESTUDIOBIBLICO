@@ -1,5 +1,7 @@
 import { genesis3to10Studies } from "./genesis-3-10";
 import { validateEditorialRecords } from "./editorial";
+import { studyCatalog, validateStudyCatalog } from "./study-catalog";
+import { validateStudyGuides } from "./study-guides";
 
 export interface VerseStudy {
   number: number;
@@ -869,6 +871,15 @@ function validateChapterStudies(studies: readonly ChapterStudy[]) {
 
 validateChapterStudies(chapterStudies);
 validateEditorialRecords(chapterStudies.map((study) => study.key));
+validateStudyCatalog();
+validateStudyGuides(chapterStudies.map((study) => study.key));
+
+for (const entry of studyCatalog) {
+  const study = chapterStudies.find((item) => item.key === entry.key);
+  if (!study || study.verses.length !== entry.verseCount) {
+    throw new Error(`Catálogo desalineado con el contenido: ${entry.key}`);
+  }
+}
 
 export function getChapterStudy(bookId: string, chapter: number) {
   return chapterStudies.find((study) => study.bookId === bookId && study.chapter === chapter);
