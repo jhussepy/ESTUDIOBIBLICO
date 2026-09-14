@@ -129,16 +129,26 @@ const apiBookIds: Record<string, string> = {
   "Apocalipsis": "REV",
 };
 
-const editorialDateFormatter = new Intl.DateTimeFormat("es-ES", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  timeZone: "UTC",
-});
+const editorialMonthLabels = [
+  "ene",
+  "feb",
+  "mar",
+  "abr",
+  "may",
+  "jun",
+  "jul",
+  "ago",
+  "sept",
+  "oct",
+  "nov",
+  "dic",
+] as const;
 
 function formatEditorialDate(value: string) {
   if (!isValidEditorialDate(value)) return value;
-  return editorialDateFormatter.format(new Date(`${value}T00:00:00Z`));
+  const [year, month, day] = value.split("-");
+  const monthLabel = editorialMonthLabels[Number.parseInt(month, 10) - 1];
+  return `${Number.parseInt(day, 10)} ${monthLabel} ${year}`;
 }
 
 function CanonBookButton({
