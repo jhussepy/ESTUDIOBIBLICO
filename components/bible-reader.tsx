@@ -92,7 +92,17 @@ function initialParam(name: string) {
   return new URLSearchParams(window.location.search).get(name) || "";
 }
 
-export function BibleReader({ readingScale = "normal" }: { readingScale?: ReadingScale }) {
+interface BibleReaderProps {
+  readingScale?: ReadingScale;
+  initialBookId?: string;
+  initialChapterNumber?: number;
+}
+
+export function BibleReader({
+  readingScale = "normal",
+  initialBookId = "GEN",
+  initialChapterNumber = 1,
+}: BibleReaderProps) {
   const [bibles, setBibles] = useState<BibleSummary[]>([]);
   const [books, setBooks] = useState<BookSummary[]>([]);
   const [chapter, setChapter] = useState<ChapterContent | null>(null);
@@ -163,7 +173,7 @@ export function BibleReader({ readingScale = "normal" }: { readingScale?: Readin
     )
       .then((availableBooks) => {
         const pendingBookId = pendingBookIdRef.current;
-        const requestedBook = initialParam("book");
+        const requestedBook = initialParam("book") || initialBookId;
         const nextBook =
           availableBooks.find((book) => book.id === pendingBookId) ||
           availableBooks.find((book) => book.id === requestedBook) ||
@@ -173,7 +183,9 @@ export function BibleReader({ readingScale = "normal" }: { readingScale?: Readin
         setBooks(availableBooks);
         setSelectedBookId(nextBook?.id || "");
 
-        const requestedChapter = initialParam("chapter");
+        const requestedChapter =
+          initialParam("chapter") ||
+          (nextBook?.id === initialBookId ? `${initialBookId}.${initialChapterNumber}` : "");
         const nextChapterId =
           nextBook?.chapters.some((item) => item.id === requestedChapter)
             ? requestedChapter
@@ -188,7 +200,7 @@ export function BibleReader({ readingScale = "normal" }: { readingScale?: Readin
       .finally(() => setBooksLoading(false));
 
     return () => controller.abort();
-  }, [selectedBibleId, retryKey]);
+  }, [initialBookId, initialChapterNumber, selectedBibleId, retryKey]);
 
   useEffect(() => {
     if (!selectedBibleId || !selectedChapterId) return;
