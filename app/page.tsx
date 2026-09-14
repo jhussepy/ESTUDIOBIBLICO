@@ -124,6 +124,18 @@ const apiBookIds: Record<string, string> = {
   "Apocalipsis": "REV",
 };
 
+const editorialDateFormatter = new Intl.DateTimeFormat("es-ES", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+function formatEditorialDate(value: string) {
+  const date = new Date(`${value}T00:00:00Z`);
+  return Number.isNaN(date.getTime()) ? value : editorialDateFormatter.format(date);
+}
+
 function CanonBookButton({
   active,
   book,
@@ -764,7 +776,7 @@ export default function Home() {
                                   {editorialStatusMeta[editorialRecord.status].label}
                                 </h3>
                               </div>
-                              <Badge variant="outline">Método {editorialRecord.methodVersion} · 14 sep 2026</Badge>
+                              <Badge variant="outline">Método {editorialRecord.methodVersion} · {formatEditorialDate(editorialRecord.updatedAt)}</Badge>
                             </div>
                             <p className="mt-3 text-sm leading-6 text-muted-foreground">{editorialRecord.reviewNote}</p>
                           </section>
