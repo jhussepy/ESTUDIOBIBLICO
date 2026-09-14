@@ -19,6 +19,8 @@ La experiencia interactiva ofrece lectura bíblica mediante API.Bible y estudios
 - progreso persistente por versículo y capítulo en el dispositivo;
 - marcadores y notas privadas con guardado automático;
 - enlaces compartibles que abren el versículo seleccionado;
+- bibliografía académica trazable y cuestiones interpretativas por capítulo;
+- estados editoriales que distinguen borrador, revisión y publicación;
 - tres tamaños de lectura y modo enfoque;
 - validación automática de capítulos y versículos durante la compilación;
 - diseño adaptable, modo oscuro y navegación accesible por teclado.
@@ -58,6 +60,7 @@ pnpm start
 ```text
 app/             interfaz y estilos globales
 components/ui/   componentes reutilizables
+lib/editorial.ts catálogo bibliográfico y trazabilidad editorial
 design-system/   decisiones visuales del producto
 public/          recursos públicos
 ```
@@ -78,4 +81,4 @@ El desarrollo del corpus seguirá el orden canónico, capítulo por capítulo, c
 
 ---
 
-**Proyecto en desarrollo.** La interfaz y Génesis 1:1–5 constituyen la base inicial para ampliar el estudio a toda la Biblia.
+**Proyecto en desarrollo.** La interfaz, el sistema editorial y los estudios de Génesis 1–10 constituyen la base para ampliar el recorrido a toda la Biblia.

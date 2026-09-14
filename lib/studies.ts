@@ -1,4 +1,5 @@
 import { genesis3to10Studies } from "./genesis-3-10";
+import { validateEditorialRecords } from "./editorial";
 
 export interface VerseStudy {
   number: number;
@@ -867,6 +868,7 @@ function validateChapterStudies(studies: readonly ChapterStudy[]) {
 }
 
 validateChapterStudies(chapterStudies);
+validateEditorialRecords(chapterStudies.map((study) => study.key));
 
 export function getChapterStudy(bookId: string, chapter: number) {
   return chapterStudies.find((study) => study.bookId === bookId && study.chapter === chapter);

@@ -248,9 +248,28 @@ export function BibleReader({ readingScale = "normal" }: { readingScale?: Readin
 
   useEffect(() => {
     function handleNavigation(event: Event) {
-      const detail = (event as CustomEvent<{ bookId?: string; chapterNumber?: number }>).detail;
+      const detail = (
+        event as CustomEvent<{ bibleId?: string; bookId?: string; chapterNumber?: number }>
+      ).detail;
       const bookId = detail?.bookId;
       if (!bookId) return;
+      const requestedBibleId = detail?.bibleId;
+      if (
+        requestedBibleId &&
+        requestedBibleId !== selectedBibleId &&
+        bibles.some((bible) => bible.id === requestedBibleId)
+      ) {
+        pendingBookIdRef.current = bookId;
+        setSelectedBibleId(requestedBibleId);
+        setBooks([]);
+        setSelectedBookId("");
+        setSelectedChapterId("");
+        setChapter(null);
+        setBooksLoading(true);
+        setChapterLoading(false);
+        setError(null);
+        return;
+      }
       const nextBook = books.find((book) => book.id === bookId);
       if (!nextBook) {
         pendingBookIdRef.current = booksLoading ? bookId : null;
@@ -273,7 +292,7 @@ export function BibleReader({ readingScale = "normal" }: { readingScale?: Readin
 
     window.addEventListener("bible-reader-navigate", handleNavigation);
     return () => window.removeEventListener("bible-reader-navigate", handleNavigation);
-  }, [books, booksLoading, selectedBookId, selectedChapterId]);
+  }, [bibles, books, booksLoading, selectedBibleId, selectedBookId, selectedChapterId]);
 
   function selectBook(bookId: string) {
     const nextBook = books.find((book) => book.id === bookId);
