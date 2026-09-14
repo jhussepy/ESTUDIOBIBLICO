@@ -163,11 +163,21 @@ function CanonBookButton({
   );
 }
 
-export default function Home() {
+interface HomeProps {
+  initialBookId?: string;
+  initialChapterNumber?: number;
+  initialReference?: string;
+}
+
+export default function Home({
+  initialBookId = "GEN",
+  initialChapterNumber = 1,
+  initialReference = "Génesis 1",
+}: HomeProps) {
   const [selectedVerse, setSelectedVerse] = useState(1);
-  const [activeBookId, setActiveBookId] = useState("GEN");
-  const [activeChapterNumber, setActiveChapterNumber] = useState(1);
-  const [activeReference, setActiveReference] = useState("Génesis 1");
+  const [activeBookId, setActiveBookId] = useState(initialBookId);
+  const [activeChapterNumber, setActiveChapterNumber] = useState(initialChapterNumber);
+  const [activeReference, setActiveReference] = useState(initialReference);
   const [actionMessage, setActionMessage] = useState("");
   const pendingStudyScrollRef = useRef(false);
   const {
@@ -661,7 +671,11 @@ export default function Home() {
               </div>
             </section>
 
-            <BibleReader readingScale={preferences.readingScale} />
+            <BibleReader
+              readingScale={preferences.readingScale}
+              initialBookId={initialBookId}
+              initialChapterNumber={initialChapterNumber}
+            />
 
             <div className="mt-6">
               <StudySearch studies={chapterStudies} onSelect={openSearchResult} />
