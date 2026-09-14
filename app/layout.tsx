@@ -29,7 +29,6 @@ export const metadata: Metadata = {
     title: "Academia de Teología Bíblica",
     description: "Estudio bíblico profundo y versículo por versículo.",
   },
-  alternates: { canonical: "/" },
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
