@@ -261,7 +261,11 @@ export default function Home() {
     setActionMessage("");
     const params = new URLSearchParams(window.location.search);
     params.set("verse", String(verse));
-    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}?${params.toString()}${window.location.hash}`,
+    );
   }
 
   async function copyVerseLink() {
@@ -290,7 +294,11 @@ export default function Home() {
     window.dispatchEvent(new CustomEvent("bible-reader-navigate", {
       detail: { bookId: saved.bookId, chapterNumber: saved.chapter },
     }));
-    document.getElementById("lector-biblico")?.scrollIntoView({ block: "start" });
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.getElementById("estudio-versiculo")?.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
   }
 
   function toggleCompleted() {
@@ -385,6 +393,30 @@ export default function Home() {
 
     window.addEventListener("bible-reader-selection", handleSelection);
     return () => window.removeEventListener("bible-reader-selection", handleSelection);
+  }, []);
+
+  useEffect(() => {
+    function restoreLocationState() {
+      const params = new URLSearchParams(window.location.search);
+      const bookId = params.get("book") || "GEN";
+      const chapterId = params.get("chapter") || `${bookId}.1`;
+      const chapterNumber = Number.parseInt(chapterId.split(".").at(-1) || "1", 10);
+      const verse = Number.parseInt(params.get("verse") || "1", 10);
+
+      setSelectedVerse(Number.isInteger(verse) && verse > 0 ? verse : 1);
+      setActionMessage("");
+      window.dispatchEvent(new CustomEvent("bible-reader-navigate", {
+        detail: {
+          bookId,
+          chapterNumber: Number.isInteger(chapterNumber) && chapterNumber > 0
+            ? chapterNumber
+            : 1,
+        },
+      }));
+    }
+
+    window.addEventListener("popstate", restoreLocationState);
+    return () => window.removeEventListener("popstate", restoreLocationState);
   }, []);
 
   function openBook(book: string) {
