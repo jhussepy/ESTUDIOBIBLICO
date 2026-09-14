@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, BookOpenCheck, GitBranch, Scale, ShieldCheck } from "lucide-react";
+import { ArrowLeft, BookOpenCheck, GitBranch, LibraryBig, Scale, ShieldCheck } from "lucide-react";
 
 const principles = [
   {
@@ -79,6 +79,12 @@ export default function MethodologyPage() {
           <p className="mt-3 max-w-[75ch] leading-7 text-muted-foreground">
             El contenido está en desarrollo progresivo y debe recibir revisión humana continua. Las observaciones de hebreo, arameo y griego apoyan la interpretación, pero ninguna doctrina se establece únicamente por una palabra aislada. Los errores identificados deben corregirse de forma documentada en GitHub.
           </p>
+          <Link
+            href="/fuentes"
+            className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/35"
+          >
+            <LibraryBig aria-hidden="true" className="size-4" /> Consultar fuentes y estados editoriales
+          </Link>
         </section>
       </div>
     </main>

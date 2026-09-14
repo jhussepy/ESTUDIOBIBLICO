@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import {
   ALargeSmall,
@@ -11,6 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Copy,
+  ExternalLink,
+  FileCheck2,
   Focus,
   Languages,
   LibraryBig,
@@ -44,6 +46,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useStudyWorkspace } from "@/hooks/use-study-workspace";
+import { editorialStatusMeta, getEditorialRecord, getSourcesForStudy } from "@/lib/editorial";
 import { chapterStudies, getChapterStudy } from "@/lib/studies";
 
 declare global {
@@ -158,6 +161,7 @@ export default function Home() {
   const [activeChapterNumber, setActiveChapterNumber] = useState(1);
   const [activeReference, setActiveReference] = useState("Génesis 1");
   const [actionMessage, setActionMessage] = useState("");
+  const pendingStudyScrollRef = useRef(false);
   const {
     completedByStudy,
     bookmarks,
@@ -182,6 +186,8 @@ export default function Home() {
     () => activeStudy?.verses.find((verse) => verse.number === activeVerseNumber),
     [activeStudy, activeVerseNumber],
   );
+  const editorialRecord = activeStudy ? getEditorialRecord(activeStudy.key) : undefined;
+  const editorialSources = activeStudy ? getSourcesForStudy(activeStudy.key) : [];
   const completedVerses = activeStudy ? completedByStudy[activeStudy.key] ?? [] : [];
   const isComplete = completedVerses.includes(activeVerseNumber);
   const chapterProgress = activeStudy?.verses.length
@@ -294,12 +300,26 @@ export default function Home() {
     window.dispatchEvent(new CustomEvent("bible-reader-navigate", {
       detail: { bookId: saved.bookId, chapterNumber: saved.chapter },
     }));
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    document.getElementById("estudio-versiculo")?.scrollIntoView({
-      behavior: reducedMotion ? "auto" : "smooth",
-      block: "start",
-    });
+    const studySection = document.getElementById("estudio-versiculo");
+    if (studySection) {
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      studySection.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    } else {
+      pendingStudyScrollRef.current = true;
+    }
   }
+
+  useEffect(() => {
+    if (!pendingStudyScrollRef.current || !activeStudy || !current) return;
+    const frame = window.requestAnimationFrame(() => {
+      const studySection = document.getElementById("estudio-versiculo");
+      if (!studySection) return;
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      studySection.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      pendingStudyScrollRef.current = false;
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeStudy, current]);
 
   function toggleCompleted() {
     if (!activeStudy) return;
@@ -402,12 +422,14 @@ export default function Home() {
       const chapterId = params.get("chapter") || `${bookId}.1`;
       const chapterNumber = Number.parseInt(chapterId.split(".").at(-1) || "1", 10);
       const verse = Number.parseInt(params.get("verse") || "1", 10);
+      const bibleId = params.get("bible") || undefined;
 
       setSelectedVerse(Number.isInteger(verse) && verse > 0 ? verse : 1);
       setActionMessage("");
       window.dispatchEvent(new CustomEvent("bible-reader-navigate", {
         detail: {
           bookId,
+          bibleId,
           chapterNumber: Number.isInteger(chapterNumber) && chapterNumber > 0
             ? chapterNumber
             : 1,
@@ -494,6 +516,12 @@ export default function Home() {
           >
             <ScrollText aria-hidden="true" className="size-4" /> Metodología editorial
           </Link>
+          <Link
+            href="/fuentes"
+            className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-sidebar-foreground/82 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-sidebar-ring/45"
+          >
+            <LibraryBig aria-hidden="true" className="size-4" /> Fuentes académicas
+          </Link>
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
@@ -542,6 +570,11 @@ export default function Home() {
                     <Badge variant="outline" className="border-border bg-background/70">
                       {activeStudy ? activeStudy.verses.length + " versículos analizados" : "Estudio en preparación"}
                     </Badge>
+                    {editorialRecord && (
+                      <Badge variant="outline" className="border-accent/35 bg-accent/9 text-accent-foreground">
+                        <FileCheck2 aria-hidden="true" /> {editorialStatusMeta[editorialRecord.status].label}
+                      </Badge>
+                    )}
                   </div>
                   <p className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-accent-foreground">
                     {activeStudy?.lessonLabel ?? "Lectura canónica"}
@@ -654,6 +687,7 @@ export default function Home() {
                       <TabsTrigger value="exegesis" className="min-h-11 px-3">Exégesis</TabsTrigger>
                       <TabsTrigger value="teologia" className="min-h-11 px-3">Teología</TabsTrigger>
                       <TabsTrigger value="conexiones" className="min-h-11 px-3">Conexiones</TabsTrigger>
+                      <TabsTrigger value="fuentes" className="min-h-11 px-3">Fuentes</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="texto" className="pt-5">
@@ -717,6 +751,75 @@ export default function Home() {
                           </div>
                         ))}
                       </div>
+                    </TabsContent>
+
+                    <TabsContent value="fuentes" className="pt-5">
+                      {editorialRecord && (
+                        <div className="space-y-5">
+                          <section className="rounded-xl border border-border bg-muted/35 p-4" aria-labelledby="editorial-status-title">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Estado editorial</p>
+                                <h3 id="editorial-status-title" className="mt-1 font-serif text-2xl font-semibold">
+                                  {editorialStatusMeta[editorialRecord.status].label}
+                                </h3>
+                              </div>
+                              <Badge variant="outline">Método {editorialRecord.methodVersion} · 14 sep 2026</Badge>
+                            </div>
+                            <p className="mt-3 text-sm leading-6 text-muted-foreground">{editorialRecord.reviewNote}</p>
+                          </section>
+
+                          <section aria-labelledby="chapter-sources-title">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Trazabilidad</p>
+                                <h3 id="chapter-sources-title" className="mt-1 font-serif text-2xl font-semibold">Bibliografía base del capítulo</h3>
+                              </div>
+                              <Link href="/fuentes" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/35">
+                                Ver bibliografía completa <ChevronRight aria-hidden="true" className="size-4" />
+                              </Link>
+                            </div>
+                            <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                              {editorialSources.map((source) => (
+                                <article key={source.id} className="rounded-xl border border-border p-4">
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div>
+                                      <Badge variant="outline" className="mb-2">{source.category}</Badge>
+                                      <h4 className="font-semibold">{source.shortTitle}</h4>
+                                    </div>
+                                    {source.url && (
+                                      <a
+                                        href={source.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        aria-label={`Abrir ${source.shortTitle} en una pestaña nueva`}
+                                        className="grid size-11 shrink-0 place-items-center rounded-lg border border-border text-primary transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/35"
+                                      >
+                                        <ExternalLink aria-hidden="true" className="size-4" />
+                                      </a>
+                                    )}
+                                  </div>
+                                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{source.citation}</p>
+                                  <p className="mt-3 border-t border-border pt-3 text-sm leading-6"><strong>Uso:</strong> {source.use}</p>
+                                </article>
+                              ))}
+                            </div>
+                          </section>
+
+                          <section aria-labelledby="interpretive-issues-title" className="rounded-xl border border-accent/30 bg-accent/8 p-4">
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-foreground">Debates responsables</p>
+                            <h3 id="interpretive-issues-title" className="mt-1 font-serif text-2xl font-semibold">Cuestiones interpretativas</h3>
+                            <div className="mt-3 space-y-3">
+                              {editorialRecord.interpretiveIssues.map((issue) => (
+                                <article key={issue.title} className="rounded-lg bg-background/65 p-4">
+                                  <h4 className="font-semibold">{issue.title}</h4>
+                                  <p className="mt-1 text-sm leading-6 text-muted-foreground">{issue.summary}</p>
+                                </article>
+                              ))}
+                            </div>
+                          </section>
+                        </div>
+                      )}
                     </TabsContent>
                   </Tabs>
 
