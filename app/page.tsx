@@ -481,6 +481,26 @@ export default function Home() {
     reader?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
   }
 
+  function navigateChapter(direction: -1 | 1) {
+    const nextChapter = activeChapterNumber + direction;
+    if (nextChapter < 1 || nextChapter > activeBookChapterCount) return;
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("book", activeBookId);
+    params.set("chapter", `${activeBookId}.${nextChapter}`);
+    params.delete("verse");
+    window.history.pushState(null, "", `/?${params.toString()}`);
+    setSelectedVerse(1);
+    setActionMessage("");
+    window.dispatchEvent(new CustomEvent("bible-reader-navigate", {
+      detail: { bookId: activeBookId, chapterNumber: nextChapter },
+    }));
+
+    const reader = document.getElementById("lector-biblico");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    reader?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+  }
+
   return (
     <SidebarProvider
       style={{ "--sidebar-width": "18rem" } as CSSProperties}
@@ -578,13 +598,28 @@ export default function Home() {
             >
               <Focus aria-hidden="true" /> {preferences.focusMode ? "Salir del enfoque" : "Modo enfoque"}
             </Button>
-            <Button variant="outline" size="icon" disabled aria-label="Capítulo anterior">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigateChapter(-1)}
+              disabled={activeChapterNumber <= 1}
+              aria-label="Ir al capítulo anterior"
+            >
               <ChevronLeft aria-hidden="true" />
             </Button>
-            <Button variant="outline" className="min-w-28" disabled>
+            <div
+              className="flex min-h-9 min-w-28 items-center justify-center rounded-md border border-border px-3 text-sm font-medium tabular-nums"
+              aria-live="polite"
+            >
               Capítulo {activeChapterNumber} de {activeBookChapterCount || "—"}
-            </Button>
-            <Button variant="outline" size="icon" disabled aria-label="Capítulo siguiente, disponible al completar el estudio">
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigateChapter(1)}
+              disabled={!activeBookChapterCount || activeChapterNumber >= activeBookChapterCount}
+              aria-label="Ir al capítulo siguiente"
+            >
               <ChevronRight aria-hidden="true" />
             </Button>
           </div>
