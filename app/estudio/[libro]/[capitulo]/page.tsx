@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { notFound, permanentRedirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
+import Home from "@/app/page";
 import { getCatalogEntryBySlug, studyCatalog } from "@/lib/study-catalog";
 
 interface StudyRouteProps {
@@ -53,9 +54,11 @@ export default async function StudyRoute({ params }: StudyRouteProps) {
   const study = getCatalogEntryBySlug(libro.toLowerCase(), chapterNumber);
   if (!study) notFound();
 
-  const query = new URLSearchParams({
-    book: study.bookId,
-    chapter: `${study.bookId}.${study.chapter}`,
-  });
-  permanentRedirect(`/?${query.toString()}`);
+  return (
+    <Home
+      initialBookId={study.bookId}
+      initialChapterNumber={study.chapter}
+      initialReference={`${study.bookName} ${study.chapter}`}
+    />
+  );
 }
