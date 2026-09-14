@@ -2,10 +2,34 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://estudiobiblico-black.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Academia de Teología Bíblica",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Academia de Teología Bíblica",
+    template: "%s | Academia Bíblica",
+  },
   description:
     "Estudio profesional de los 66 libros de la Biblia, desde Génesis hasta Apocalipsis, con análisis versículo por versículo.",
+  applicationName: "Academia Bíblica",
+  keywords: ["Biblia", "teología bíblica", "exégesis", "Génesis", "estudio bíblico"],
+  authors: [{ name: "Academia Bíblica" }],
+  openGraph: {
+    type: "website",
+    locale: "es_ES",
+    siteName: "Academia Bíblica",
+    title: "Academia de Teología Bíblica",
+    description:
+      "Estudio bíblico profundo, trazable y versículo por versículo desde Génesis hasta Apocalipsis.",
+    url: "/",
+  },
+  twitter: {
+    card: "summary",
+    title: "Academia de Teología Bíblica",
+    description: "Estudio bíblico profundo y versículo por versículo.",
+  },
+  alternates: { canonical: "/" },
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
