@@ -48,9 +48,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useStudyWorkspace } from "@/hooks/use-study-workspace";
 import {
   editorialStatusMeta,
+  formatEditorialDate,
   getEditorialRecord,
   getSourcesForStudy,
-  isValidEditorialDate,
 } from "@/lib/editorial";
 import { chapterStudies, getChapterStudy } from "@/lib/studies";
 
@@ -128,28 +128,6 @@ const apiBookIds: Record<string, string> = {
   "2 Pedro": "2PE", "1 Juan": "1JN", "2 Juan": "2JN", "3 Juan": "3JN", "Judas": "JUD",
   "Apocalipsis": "REV",
 };
-
-const editorialMonthLabels = [
-  "ene",
-  "feb",
-  "mar",
-  "abr",
-  "may",
-  "jun",
-  "jul",
-  "ago",
-  "sept",
-  "oct",
-  "nov",
-  "dic",
-] as const;
-
-function formatEditorialDate(value: string) {
-  if (!isValidEditorialDate(value)) return value;
-  const [year, month, day] = value.split("-");
-  const monthLabel = editorialMonthLabels[Number.parseInt(month, 10) - 1];
-  return `${Number.parseInt(day, 10)} ${monthLabel} ${year}`;
-}
 
 function CanonBookButton({
   active,
