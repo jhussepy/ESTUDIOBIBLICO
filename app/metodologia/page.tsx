@@ -48,7 +48,7 @@ export default function MethodologyPage() {
         </Link>
 
         <header className="mt-8 max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent-foreground">Estándar editorial</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent-emphasis">Estándar editorial</p>
           <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">Cómo estudiamos la Biblia</h1>
           <p className="mt-5 text-lg leading-8 text-muted-foreground">
             La Academia Bíblica sigue un método exegético, canónico y pastoral. Su propósito es ayudar a comprender el texto con profundidad sin ocultar debates ni sustituir la comunidad de fe, la enseñanza pastoral o la investigación académica especializada.
@@ -78,7 +78,7 @@ export default function MethodologyPage() {
               ["05", "Aplicación", "Responder con fidelidad."],
             ].map(([number, title, text]) => (
               <li key={number} className="rounded-xl bg-muted/55 p-4">
-                <span className="text-xs font-bold tracking-[0.12em] text-accent-foreground">{number}</span>
+                <span className="text-xs font-bold tracking-[0.12em] text-accent-emphasis">{number}</span>
                 <h3 className="mt-3 font-semibold">{title}</h3>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">{text}</p>
               </li>
