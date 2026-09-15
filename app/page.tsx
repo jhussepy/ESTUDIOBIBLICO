@@ -364,7 +364,7 @@ export default function Home({
       pendingStudyScrollRef.current = false;
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [activeStudy, current]);
+  }, [activeStudy, current, preferences.reduceMotion]);
 
   function toggleCompleted() {
     if (!activeStudy) return;
