@@ -127,19 +127,10 @@ export function useStudyWorkspace() {
 
   useEffect(() => {
     const root = document.documentElement;
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-
-    function applyAppearance() {
-      root.dataset.palette = workspace.preferences.colorPalette;
-      root.dataset.colorMode = resolveColorMode(workspace.preferences.colorMode, media.matches);
-      root.dataset.highContrast = workspace.preferences.highContrast ? "true" : "false";
-    }
-
-    applyAppearance();
-    if (workspace.preferences.colorMode !== "system") return;
-
-    media.addEventListener("change", applyAppearance);
-    return () => media.removeEventListener("change", applyAppearance);
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.palette = workspace.preferences.colorPalette;
+    root.dataset.colorMode = resolveColorMode(workspace.preferences.colorMode, prefersDark);
+    root.dataset.highContrast = workspace.preferences.highContrast ? "true" : "false";
   }, [
     workspace.preferences.colorMode,
     workspace.preferences.colorPalette,
