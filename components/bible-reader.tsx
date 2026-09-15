@@ -18,6 +18,10 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ReadingLocation, ReadingScale } from "@/hooks/use-study-workspace";
+import {
+  getRememberedBibleId,
+  getRememberedReading,
+} from "@/lib/bible-reader-startup";
 
 declare global {
   interface Window {
@@ -96,6 +100,7 @@ interface BibleReaderProps {
   readingScale?: ReadingScale;
   initialBookId?: string;
   initialChapterNumber?: number;
+  initialLocationIsExplicit?: boolean;
   preferredBibleId?: string;
   rememberLastReading?: boolean;
   lastReading?: ReadingLocation | null;
@@ -106,6 +111,7 @@ export function BibleReader({
   readingScale = "normal",
   initialBookId = "GEN",
   initialChapterNumber = 1,
+  initialLocationIsExplicit = false,
   preferredBibleId = "",
   rememberLastReading = true,
   lastReading = null,
@@ -124,6 +130,7 @@ export function BibleReader({
   const [retryKey, setRetryKey] = useState(0);
   const pendingBookIdRef = useRef<string | null>(null);
   const startupPreferencesRef = useRef({
+    initialLocationIsExplicit,
     preferredBibleId,
     rememberLastReading,
     lastReading,
@@ -159,10 +166,12 @@ export function BibleReader({
         });
         const requestedBible = initialParam("bible");
         const startup = startupPreferencesRef.current;
-        const rememberedBible =
-          !requestedBible && startup.rememberLastReading
-            ? startup.lastReading?.bibleId || ""
-            : "";
+        const rememberedBible = getRememberedBibleId({
+          requestedBibleId: requestedBible,
+          initialLocationIsExplicit: startup.initialLocationIsExplicit,
+          rememberLastReading: startup.rememberLastReading,
+          lastReading: startup.lastReading,
+        });
         const configuredBible = startup.preferredBibleId;
         const nextBibleId =
           ordered.some((bible) => bible.id === requestedBible)
@@ -198,12 +207,13 @@ export function BibleReader({
         const pendingBookId = pendingBookIdRef.current;
         const requestedBookParam = initialParam("book");
         const startup = startupPreferencesRef.current;
-        const rememberedReading =
-          !requestedBookParam &&
-          startup.rememberLastReading &&
-          startup.lastReading?.bibleId === selectedBibleId
-            ? startup.lastReading
-            : null;
+        const rememberedReading = getRememberedReading({
+          requestedBookId: requestedBookParam,
+          selectedBibleId,
+          initialLocationIsExplicit: startup.initialLocationIsExplicit,
+          rememberLastReading: startup.rememberLastReading,
+          lastReading: startup.lastReading,
+        });
         const requestedBook = requestedBookParam || rememberedReading?.bookId || initialBookId;
         const nextBook =
           availableBooks.find((book) => book.id === pendingBookId) ||
