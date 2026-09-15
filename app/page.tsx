@@ -325,7 +325,7 @@ export default function Home({
     }));
     const studySection = document.getElementById("estudio-versiculo");
     if (studySection) {
-      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reducedMotion = preferences.reduceMotion || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       studySection.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
     } else {
       pendingStudyScrollRef.current = true;
@@ -348,7 +348,7 @@ export default function Home({
     window.requestAnimationFrame(() => {
       const studySection = document.getElementById("estudio-versiculo");
       if (!studySection) return;
-      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reducedMotion = preferences.reduceMotion || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       studySection.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
       pendingStudyScrollRef.current = false;
     });
@@ -359,7 +359,7 @@ export default function Home({
     const frame = window.requestAnimationFrame(() => {
       const studySection = document.getElementById("estudio-versiculo");
       if (!studySection) return;
-      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reducedMotion = preferences.reduceMotion || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       studySection.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
       pendingStudyScrollRef.current = false;
     });
@@ -491,7 +491,7 @@ export default function Home({
     if (!bookId) return;
     window.dispatchEvent(new CustomEvent("bible-reader-navigate", { detail: { bookId } }));
     const reader = document.getElementById("lector-biblico");
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reducedMotion = preferences.reduceMotion || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     reader?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
   }
 
@@ -511,7 +511,7 @@ export default function Home({
     }));
 
     const reader = document.getElementById("lector-biblico");
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reducedMotion = preferences.reduceMotion || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     reader?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
   }
 
