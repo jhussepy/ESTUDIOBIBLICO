@@ -183,7 +183,7 @@ export function AppearanceSettings() {
                   <span
                     className={
                       "mt-1 block text-xs leading-5 " +
-                      (active ? "text-primary-foreground/78" : "text-muted-foreground")
+                      (active ? "text-primary-foreground" : "text-muted-foreground")
                     }
                   >
                     {modeDescriptions[option.id]}
