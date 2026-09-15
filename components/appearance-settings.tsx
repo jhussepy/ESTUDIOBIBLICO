@@ -13,6 +13,7 @@ import {
 import { useStudyWorkspace } from "@/hooks/use-study-workspace";
 import {
   colorModes,
+  colorPaletteGroups,
   colorPalettes,
   type ColorMode,
 } from "@/lib/theme-palettes";
@@ -69,53 +70,74 @@ export function AppearanceSettings() {
           </div>
         </div>
 
-        <div
-          className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
-          role="radiogroup"
-          aria-label="Paleta de colores"
-        >
-          {colorPalettes.map((option) => {
-            const active = option.id === preferences.colorPalette;
+        <div className="mt-6 space-y-7" role="radiogroup" aria-label="Paleta de colores">
+          {colorPaletteGroups.map((group) => {
+            const options = colorPalettes.filter(
+              (palette) => palette.category === group.id,
+            );
             return (
-              <button
-                key={option.id}
-                type="button"
-                role="radio"
-                aria-checked={active}
-                disabled={!hydrated}
-                onClick={() => setColorPalette(option.id)}
-                className={
-                  "group relative min-h-36 cursor-pointer rounded-2xl border p-4 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/40 disabled:cursor-wait disabled:opacity-65 motion-safe:hover:-translate-y-0.5 " +
-                  (active
-                    ? "border-primary bg-primary/6 shadow-sm ring-1 ring-primary/20"
-                    : "border-border bg-background hover:border-primary/45 hover:shadow-sm")
-                }
-              >
-                <span
-                  aria-hidden="true"
-                  className="block h-14 rounded-xl border border-black/10 shadow-inner"
-                  style={{
-                    background: `linear-gradient(135deg, ${option.swatches[0]} 0 48%, ${option.swatches[1]} 48% 72%, ${option.swatches[2]} 72% 100%)`,
-                  }}
-                />
-                <span className="mt-3 flex items-center justify-between gap-3">
-                  <span className="font-semibold text-foreground">{option.label}</span>
-                  <span
-                    aria-hidden="true"
-                    className={
-                      "grid size-6 shrink-0 place-items-center rounded-full border " +
-                      (active
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-card text-transparent")
-                    }
-                  >
-                    <Check className="size-3.5" />
+              <div key={group.id}>
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <h3 className="font-semibold text-foreground">{group.label}</h3>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                      {group.description}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.12em] text-accent-emphasis">
+                    {options.length} opciones
                   </span>
-                </span>
-                <span className="mt-1 block text-sm leading-6 text-muted-foreground">
-                  {option.description}
-                </span>
-              </button>
+                </div>
+
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {options.map((option) => {
+                    const active = option.id === preferences.colorPalette;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={active}
+                        disabled={!hydrated}
+                        onClick={() => setColorPalette(option.id)}
+                        className={
+                          "group relative min-h-36 cursor-pointer rounded-2xl border p-4 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/40 disabled:cursor-wait disabled:opacity-65 motion-safe:hover:-translate-y-0.5 " +
+                          (active
+                            ? "border-primary bg-primary/6 shadow-sm ring-1 ring-primary/20"
+                            : "border-border bg-background hover:border-primary/45 hover:shadow-sm")
+                        }
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="block h-14 rounded-xl border border-black/10 shadow-inner"
+                          style={{
+                            background: `linear-gradient(135deg, ${option.swatches[0]} 0 48%, ${option.swatches[1]} 48% 72%, ${option.swatches[2]} 72% 100%)`,
+                          }}
+                        />
+                        <span className="mt-3 flex items-center justify-between gap-3">
+                          <span className="font-semibold text-foreground">
+                            {option.label}
+                          </span>
+                          <span
+                            aria-hidden="true"
+                            className={
+                              "grid size-6 shrink-0 place-items-center rounded-full border " +
+                              (active
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "border-border bg-card text-transparent")
+                            }
+                          >
+                            <Check className="size-3.5" />
+                          </span>
+                        </span>
+                        <span className="mt-1 block text-sm leading-6 text-muted-foreground">
+                          {option.description}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </div>
