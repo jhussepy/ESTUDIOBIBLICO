@@ -659,12 +659,12 @@ export default function Home({
                       {activeStudy ? activeStudy.verses.length + " versículos analizados" : "Estudio en preparación"}
                     </Badge>
                     {editorialRecord && (
-                      <Badge variant="outline" className="border-accent/35 bg-accent/9 text-accent-foreground">
+                      <Badge variant="outline" className="border-accent/35 bg-accent/9 text-accent-emphasis">
                         <FileCheck2 aria-hidden="true" /> {editorialStatusMeta[editorialRecord.status].label}
                       </Badge>
                     )}
                   </div>
-                  <p className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-accent-foreground">
+                  <p className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-accent-emphasis">
                     {activeStudy?.lessonLabel ?? "Lectura canónica"}
                   </p>
                   <h1 id="chapter-title" className="font-serif text-4xl font-semibold leading-[0.98] tracking-[-0.025em] text-foreground sm:text-5xl lg:text-6xl">
@@ -814,7 +814,7 @@ export default function Home({
                         <h3>Lectura del texto</h3>
                         <p>{current.exegesis}</p>
                         <div className="language-note">
-                          <Languages aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-accent-foreground" />
+                          <Languages aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-accent-emphasis" />
                           <div>
                             <p className="font-serif text-2xl leading-relaxed" lang="he" dir="rtl">{current.hebrew}</p>
                             <p className="mt-1 text-sm font-semibold text-foreground">{current.transliteration}</p>
@@ -976,7 +976,7 @@ export default function Home({
                           </section>
 
                           <section aria-labelledby="interpretive-issues-title" className="rounded-xl border border-accent/30 bg-accent/8 p-4">
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-foreground">Debates responsables</p>
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-emphasis">Debates responsables</p>
                             <h3 id="interpretive-issues-title" className="mt-1 font-serif text-2xl font-semibold">Cuestiones interpretativas</h3>
                             <div className="mt-3 space-y-3">
                               {editorialRecord.interpretiveIssues.map((issue) => (
