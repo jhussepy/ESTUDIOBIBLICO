@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   colorModes,
+  colorPaletteGroups,
   colorPalettes,
   isColorMode,
   isColorPalette,
@@ -9,9 +10,9 @@ import {
 } from "../lib/theme-palettes";
 
 describe("sistema de paletas", () => {
-  it("publica cinco paletas únicas con metadatos visuales completos", () => {
-    expect(colorPalettes).toHaveLength(5);
-    expect(new Set(colorPalettes.map((palette) => palette.id)).size).toBe(5);
+  it("publica once paletas únicas con metadatos visuales completos", () => {
+    expect(colorPalettes).toHaveLength(11);
+    expect(new Set(colorPalettes.map((palette) => palette.id)).size).toBe(11);
 
     for (const palette of colorPalettes) {
       expect(palette.label.trim()).not.toBe("");
@@ -21,9 +22,24 @@ describe("sistema de paletas", () => {
     }
   });
 
+  it("organiza las opciones en paletas clásicas, vivas y pastel", () => {
+    expect(colorPaletteGroups.map((group) => group.id)).toEqual([
+      "classic",
+      "vibrant",
+      "pastel",
+    ]);
+
+    const categories = new Set(colorPalettes.map((palette) => palette.category));
+    expect(categories).toEqual(new Set(["classic", "vibrant", "pastel"]));
+    expect(colorPalettes.filter((palette) => palette.category === "vibrant")).toHaveLength(3);
+    expect(colorPalettes.filter((palette) => palette.category === "pastel")).toHaveLength(3);
+  });
+
   it("reconoce solo identificadores de paleta admitidos", () => {
     expect(isColorPalette("manuscript")).toBe(true);
     expect(isColorPalette("royal")).toBe(true);
+    expect(isColorPalette("ruby")).toBe(true);
+    expect(isColorPalette("mint")).toBe(true);
     expect(isColorPalette("unknown")).toBe(false);
     expect(isColorPalette(null)).toBe(false);
   });
