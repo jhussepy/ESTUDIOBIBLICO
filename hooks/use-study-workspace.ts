@@ -3,8 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 
 import {
-  isColorMode,
-  isColorPalette,
   resolveColorMode,
   type ColorMode,
   type ColorPalette,
@@ -19,6 +17,7 @@ import {
   type ReadingLocation,
   type ReadingScale,
   type ReadingWidth,
+  type StudyWorkspaceState,
 } from "@/lib/study-workspace";
 
 export type {
@@ -28,6 +27,8 @@ export type {
   ReadingScale,
   ReadingWidth,
 } from "@/lib/study-workspace";
+
+const STORAGE_KEY = "academia-biblica.workspace.v1";
 
 export function useStudyWorkspace() {
   const [workspace, setWorkspace] = useState<StudyWorkspaceState>(initialState);
