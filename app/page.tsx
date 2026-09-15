@@ -185,11 +185,14 @@ export default function Home({
     completedByStudy,
     bookmarks,
     notes,
+    lastReading,
     preferences,
+    hydrated,
     setCompletedVerses,
     toggleBookmark,
     setNote,
     setReadingScale,
+    setLastReading,
     toggleFocusMode,
   } = useStudyWorkspace();
 
@@ -678,11 +681,26 @@ export default function Home({
               </div>
             </section>
 
-            <BibleReader
-              readingScale={preferences.readingScale}
-              initialBookId={initialBookId}
-              initialChapterNumber={initialChapterNumber}
-            />
+            {hydrated ? (
+              <BibleReader
+                readingScale={preferences.readingScale}
+                initialBookId={initialBookId}
+                initialChapterNumber={initialChapterNumber}
+                preferredBibleId={preferences.defaultBibleId}
+                rememberLastReading={preferences.rememberLastReading}
+                lastReading={lastReading}
+                onReadingChange={setLastReading}
+              />
+            ) : (
+              <section
+                aria-busy="true"
+                aria-label="Preparando el lector bíblico"
+                className="mt-6 rounded-2xl border border-border bg-card p-6"
+              >
+                <p className="text-sm font-semibold text-foreground">Preparando tu espacio de lectura…</p>
+                <p className="mt-1 text-sm text-muted-foreground">Aplicando tus preferencias guardadas.</p>
+              </section>
+            )}
 
             <div className="mt-6">
               <StudySearch studies={chapterStudies} onSelect={openSearchResult} />
@@ -746,7 +764,7 @@ export default function Home({
                       <ALargeSmall aria-hidden="true" className="size-4 text-primary" /> Tamaño de lectura
                     </div>
                     <div className="flex flex-wrap gap-2" role="group" aria-label="Tamaño del texto y modo de lectura">
-                      {(["small", "normal", "large"] as const).map((scale, index) => (
+                      {(["small", "normal", "large", "extra-large"] as const).map((scale, index) => (
                         <Button
                           key={scale}
                           type="button"
@@ -756,7 +774,7 @@ export default function Home({
                           aria-pressed={preferences.readingScale === scale}
                           className="min-h-11 min-w-11"
                         >
-                          {index === 0 ? "A−" : index === 1 ? "A" : "A+"}
+                          {index === 0 ? "A−" : index === 1 ? "A" : index === 2 ? "A+" : "A++"}
                         </Button>
                       ))}
                       <Button
