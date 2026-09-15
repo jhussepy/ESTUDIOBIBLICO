@@ -19,11 +19,11 @@ import {
   Milestone,
   NotebookPen,
   ScrollText,
+  Settings,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { BibleReader } from "@/components/bible-reader";
-import { PaletteSelector } from "@/components/palette-selector";
 import { StudySearch } from "@/components/study-search";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -191,9 +191,6 @@ export default function Home({
     setNote,
     setReadingScale,
     toggleFocusMode,
-    setColorPalette,
-    setColorMode,
-    toggleHighContrast,
   } = useStudyWorkspace();
 
   const activeStudy = useMemo(
@@ -564,16 +561,6 @@ export default function Home({
               </SidebarGroupContent>
             </SidebarGroup>
           ))}
-          <div className="px-2 pb-2 pt-3">
-            <PaletteSelector
-              palette={preferences.colorPalette}
-              mode={preferences.colorMode}
-              highContrast={preferences.highContrast}
-              onPaletteChange={setColorPalette}
-              onModeChange={setColorMode}
-              onContrastChange={toggleHighContrast}
-            />
-          </div>
         </SidebarContent>
         <SidebarSeparator />
         <SidebarFooter className="p-4">
@@ -586,8 +573,14 @@ export default function Home({
             <p className="mt-2 text-xs leading-relaxed text-sidebar-foreground/68">{completedVerseTotal} de {availableVerseTotal} versículos · guardado en este dispositivo</p>
           </div>
           <Link
-            href="/metodologia"
+            href="/ajustes"
             className="mt-2 flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-sidebar-foreground/82 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-sidebar-ring/45"
+          >
+            <Settings aria-hidden="true" className="size-4" /> Ajustes
+          </Link>
+          <Link
+            href="/metodologia"
+            className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-sidebar-foreground/82 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-sidebar-ring/45"
           >
             <ScrollText aria-hidden="true" className="size-4" /> Metodología editorial
           </Link>
