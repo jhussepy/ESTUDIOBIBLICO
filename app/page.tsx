@@ -23,6 +23,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { BibleReader } from "@/components/bible-reader";
+import { PaletteSelector } from "@/components/palette-selector";
 import { StudySearch } from "@/components/study-search";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -190,6 +191,9 @@ export default function Home({
     setNote,
     setReadingScale,
     toggleFocusMode,
+    setColorPalette,
+    setColorMode,
+    toggleHighContrast,
   } = useStudyWorkspace();
 
   const activeStudy = useMemo(
@@ -571,6 +575,14 @@ export default function Home({
             <Progress value={canonStudyProgress} aria-label={`${completedVerseTotal} de ${availableVerseTotal} versículos disponibles estudiados`} className="h-1.5" />
             <p className="mt-2 text-xs leading-relaxed text-sidebar-foreground/68">{completedVerseTotal} de {availableVerseTotal} versículos · guardado en este dispositivo</p>
           </div>
+          <PaletteSelector
+            palette={preferences.colorPalette}
+            mode={preferences.colorMode}
+            highContrast={preferences.highContrast}
+            onPaletteChange={setColorPalette}
+            onModeChange={setColorMode}
+            onContrastChange={toggleHighContrast}
+          />
           <Link
             href="/metodologia"
             className="mt-2 flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-sidebar-foreground/82 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-sidebar-ring/45"
