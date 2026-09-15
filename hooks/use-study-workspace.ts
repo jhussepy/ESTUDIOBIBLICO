@@ -10,16 +10,33 @@ import {
   type ColorPalette,
 } from "@/lib/theme-palettes";
 
-export type ReadingScale = "small" | "normal" | "large";
+export type ReadingScale = "small" | "normal" | "large" | "extra-large";
+export type ReadingLineHeight = "compact" | "comfortable" | "spacious";
+export type ReadingWidth = "narrow" | "balanced" | "wide";
+export type ReadingFont = "serif" | "accessible";
 
-interface StudyWorkspaceState {
+export interface ReadingLocation {
+  bibleId: string;
+  bookId: string;
+  chapterId: string;
+  chapterNumber: number;
+}
+
+export interface StudyWorkspaceState {
   version: 1;
   completedByStudy: Record<string, number[]>;
   bookmarks: string[];
   notes: Record<string, string>;
+  lastReading: ReadingLocation | null;
   preferences: {
     readingScale: ReadingScale;
+    readingLineHeight: ReadingLineHeight;
+    readingWidth: ReadingWidth;
+    readingFont: ReadingFont;
     focusMode: boolean;
+    rememberLastReading: boolean;
+    defaultBibleId: string;
+    reduceMotion: boolean;
     colorPalette: ColorPalette;
     colorMode: ColorMode;
     highContrast: boolean;
@@ -33,25 +50,80 @@ const initialState: StudyWorkspaceState = {
   completedByStudy: {},
   bookmarks: [],
   notes: {},
+  lastReading: null,
   preferences: {
     readingScale: "normal",
+    readingLineHeight: "comfortable",
+    readingWidth: "balanced",
+    readingFont: "serif",
     focusMode: false,
+    rememberLastReading: true,
+    defaultBibleId: "",
+    reduceMotion: false,
     colorPalette: "manuscript",
     colorMode: "system",
     highContrast: false,
   },
 };
 
-function normalizeWorkspace(value: unknown): StudyWorkspaceState {
+function normalizeReadingLocation(value: unknown): ReadingLocation | null {
+  if (!value || typeof value !== "object") return null;
+  const candidate = value as Partial<ReadingLocation>;
+  if (
+    typeof candidate.bibleId !== "string" ||
+    typeof candidate.bookId !== "string" ||
+    typeof candidate.chapterId !== "string" ||
+    !Number.isInteger(candidate.chapterNumber) ||
+    (candidate.chapterNumber ?? 0) < 1
+  ) {
+    return null;
+  }
+  return {
+    bibleId: candidate.bibleId,
+    bookId: candidate.bookId,
+    chapterId: candidate.chapterId,
+    chapterNumber: candidate.chapterNumber as number,
+  };
+}
+
+function isWorkspaceBackup(value: unknown): value is Partial<StudyWorkspaceState> {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<StudyWorkspaceState>;
+  return (
+    Array.isArray(candidate.bookmarks) &&
+    Boolean(candidate.completedByStudy && typeof candidate.completedByStudy === "object") &&
+    Boolean(candidate.notes && typeof candidate.notes === "object") &&
+    Boolean(candidate.preferences && typeof candidate.preferences === "object")
+  );
+}
+
+export function normalizeWorkspace(value: unknown): StudyWorkspaceState {
   if (!value || typeof value !== "object") return initialState;
   const candidate = value as Partial<StudyWorkspaceState>;
   const preferences = candidate.preferences;
   const readingScale =
     preferences?.readingScale === "small" ||
     preferences?.readingScale === "large" ||
+    preferences?.readingScale === "extra-large" ||
     preferences?.readingScale === "normal"
       ? preferences.readingScale
       : "normal";
+  const readingLineHeight =
+    preferences?.readingLineHeight === "compact" ||
+    preferences?.readingLineHeight === "spacious" ||
+    preferences?.readingLineHeight === "comfortable"
+      ? preferences.readingLineHeight
+      : "comfortable";
+  const readingWidth =
+    preferences?.readingWidth === "narrow" ||
+    preferences?.readingWidth === "wide" ||
+    preferences?.readingWidth === "balanced"
+      ? preferences.readingWidth
+      : "balanced";
+  const readingFont =
+    preferences?.readingFont === "accessible" || preferences?.readingFont === "serif"
+      ? preferences.readingFont
+      : "serif";
   const colorPalette = isColorPalette(preferences?.colorPalette)
     ? preferences.colorPalette
     : "manuscript";
@@ -83,9 +155,22 @@ function normalizeWorkspace(value: unknown): StudyWorkspaceState {
             ),
           )
         : {},
+    lastReading: normalizeReadingLocation(candidate.lastReading),
     preferences: {
       readingScale,
+      readingLineHeight,
+      readingWidth,
+      readingFont,
       focusMode: Boolean(preferences?.focusMode),
+      rememberLastReading:
+        typeof preferences?.rememberLastReading === "boolean"
+          ? preferences.rememberLastReading
+          : true,
+      defaultBibleId:
+        typeof preferences?.defaultBibleId === "string"
+          ? preferences.defaultBibleId
+          : "",
+      reduceMotion: Boolean(preferences?.reduceMotion),
       colorPalette,
       colorMode,
       highContrast: Boolean(preferences?.highContrast),
@@ -132,11 +217,19 @@ export function useStudyWorkspace() {
     root.dataset.palette = workspace.preferences.colorPalette;
     root.dataset.colorMode = resolveColorMode(workspace.preferences.colorMode, prefersDark);
     root.dataset.highContrast = workspace.preferences.highContrast ? "true" : "false";
+    root.dataset.readingLineHeight = workspace.preferences.readingLineHeight;
+    root.dataset.readingWidth = workspace.preferences.readingWidth;
+    root.dataset.readingFont = workspace.preferences.readingFont;
+    root.dataset.reduceMotion = workspace.preferences.reduceMotion ? "true" : "false";
   }, [
     hydrated,
     workspace.preferences.colorMode,
     workspace.preferences.colorPalette,
     workspace.preferences.highContrast,
+    workspace.preferences.readingFont,
+    workspace.preferences.readingLineHeight,
+    workspace.preferences.readingWidth,
+    workspace.preferences.reduceMotion,
   ]);
 
   const setCompletedVerses = useCallback(
@@ -175,6 +268,68 @@ export function useStudyWorkspace() {
     }));
   }, []);
 
+  const setReadingLineHeight = useCallback((readingLineHeight: ReadingLineHeight) => {
+    setWorkspace((current) => ({
+      ...current,
+      preferences: { ...current.preferences, readingLineHeight },
+    }));
+  }, []);
+
+  const setReadingWidth = useCallback((readingWidth: ReadingWidth) => {
+    setWorkspace((current) => ({
+      ...current,
+      preferences: { ...current.preferences, readingWidth },
+    }));
+  }, []);
+
+  const setReadingFont = useCallback((readingFont: ReadingFont) => {
+    setWorkspace((current) => ({
+      ...current,
+      preferences: { ...current.preferences, readingFont },
+    }));
+  }, []);
+
+  const setRememberLastReading = useCallback((rememberLastReading: boolean) => {
+    setWorkspace((current) => ({
+      ...current,
+      lastReading: rememberLastReading ? current.lastReading : null,
+      preferences: { ...current.preferences, rememberLastReading },
+    }));
+  }, []);
+
+  const setDefaultBibleId = useCallback((defaultBibleId: string) => {
+    setWorkspace((current) => ({
+      ...current,
+      preferences: { ...current.preferences, defaultBibleId },
+    }));
+  }, []);
+
+  const toggleReduceMotion = useCallback(() => {
+    setWorkspace((current) => ({
+      ...current,
+      preferences: {
+        ...current.preferences,
+        reduceMotion: !current.preferences.reduceMotion,
+      },
+    }));
+  }, []);
+
+  const setLastReading = useCallback((lastReading: ReadingLocation) => {
+    setWorkspace((current) => {
+      if (!current.preferences.rememberLastReading) return current;
+      const previous = current.lastReading;
+      if (
+        previous?.bibleId === lastReading.bibleId &&
+        previous.bookId === lastReading.bookId &&
+        previous.chapterId === lastReading.chapterId &&
+        previous.chapterNumber === lastReading.chapterNumber
+      ) {
+        return current;
+      }
+      return { ...current, lastReading };
+    });
+  }, []);
+
   const toggleFocusMode = useCallback(() => {
     setWorkspace((current) => ({
       ...current,
@@ -209,6 +364,39 @@ export function useStudyWorkspace() {
     }));
   }, []);
 
+  const resetReading = useCallback(() => {
+    setWorkspace((current) => ({
+      ...current,
+      preferences: {
+        ...current.preferences,
+        readingScale: initialState.preferences.readingScale,
+        readingLineHeight: initialState.preferences.readingLineHeight,
+        readingWidth: initialState.preferences.readingWidth,
+        readingFont: initialState.preferences.readingFont,
+      },
+    }));
+  }, []);
+
+  const clearStudyData = useCallback(() => {
+    setWorkspace((current) => ({
+      ...current,
+      completedByStudy: {},
+      bookmarks: [],
+      notes: {},
+      lastReading: null,
+    }));
+  }, []);
+
+  const restoreWorkspace = useCallback((value: unknown) => {
+    if (!isWorkspaceBackup(value)) return false;
+    setWorkspace(normalizeWorkspace(value));
+    return true;
+  }, []);
+
+  const resetWorkspace = useCallback(() => {
+    setWorkspace(initialState);
+  }, []);
+
   const resetAppearance = useCallback(() => {
     setWorkspace((current) => ({
       ...current,
@@ -228,10 +416,21 @@ export function useStudyWorkspace() {
     toggleBookmark,
     setNote,
     setReadingScale,
+    setReadingLineHeight,
+    setReadingWidth,
+    setReadingFont,
+    setRememberLastReading,
+    setDefaultBibleId,
+    toggleReduceMotion,
+    setLastReading,
     toggleFocusMode,
     setColorPalette,
     setColorMode,
     toggleHighContrast,
+    resetReading,
     resetAppearance,
+    clearStudyData,
+    restoreWorkspace,
+    resetWorkspace,
   };
 }
