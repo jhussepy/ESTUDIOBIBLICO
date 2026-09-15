@@ -997,6 +997,43 @@ article[data-reading-scale="large"] .api-scripture-content { font-size: clamp(1.
 .study-path li p { font-size: 0.9rem; font-weight: 700; }
 .study-path li small { display: block; margin-top: 0.1rem; color: var(--muted-foreground); font-size: 0.76rem; line-height: 1.35; }
 
+article[data-reading-scale="extra-large"] .api-scripture-content {
+  font-size: clamp(1.65rem, 2.3vw, 1.95rem);
+  line-height: 2;
+}
+
+.study-scale-extra-large .scripture-quote span { font-size: clamp(2rem, 3.4vw, 2.5rem); }
+.study-scale-extra-large .reading-copy > p { font-size: 1.22rem; line-height: 1.9; }
+
+html[data-reading-line-height="compact"] .api-scripture-content { line-height: 1.55; }
+html[data-reading-line-height="comfortable"] .api-scripture-content { line-height: 1.9; }
+html[data-reading-line-height="spacious"] .api-scripture-content { line-height: 2.2; }
+html[data-reading-line-height="compact"] .reading-copy > p { line-height: 1.55; }
+html[data-reading-line-height="comfortable"] .reading-copy > p { line-height: 1.75; }
+html[data-reading-line-height="spacious"] .reading-copy > p { line-height: 2; }
+
+html[data-reading-width="narrow"] .api-scripture-content,
+html[data-reading-width="narrow"] .reading-copy { max-width: 58ch; }
+html[data-reading-width="balanced"] .api-scripture-content,
+html[data-reading-width="balanced"] .reading-copy { max-width: 72ch; }
+html[data-reading-width="wide"] .api-scripture-content,
+html[data-reading-width="wide"] .reading-copy { max-width: 88ch; }
+
+html[data-reading-font="accessible"] .api-scripture-content,
+html[data-reading-font="accessible"] .scripture-quote span,
+html[data-reading-font="accessible"] .reading-copy h3 {
+  font-family: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
+}
+
+html[data-reduce-motion="true"] *,
+html[data-reduce-motion="true"] *::before,
+html[data-reduce-motion="true"] *::after {
+  scroll-behavior: auto !important;
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     scroll-behavior: auto !important;
