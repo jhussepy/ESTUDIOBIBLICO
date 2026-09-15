@@ -126,12 +126,14 @@ export function useStudyWorkspace() {
   }, [hydrated, workspace]);
 
   useEffect(() => {
+    if (!hydrated) return;
     const root = document.documentElement;
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     root.dataset.palette = workspace.preferences.colorPalette;
     root.dataset.colorMode = resolveColorMode(workspace.preferences.colorMode, prefersDark);
     root.dataset.highContrast = workspace.preferences.highContrast ? "true" : "false";
   }, [
+    hydrated,
     workspace.preferences.colorMode,
     workspace.preferences.colorPalette,
     workspace.preferences.highContrast,
@@ -207,6 +209,18 @@ export function useStudyWorkspace() {
     }));
   }, []);
 
+  const resetAppearance = useCallback(() => {
+    setWorkspace((current) => ({
+      ...current,
+      preferences: {
+        ...current.preferences,
+        colorPalette: initialState.preferences.colorPalette,
+        colorMode: initialState.preferences.colorMode,
+        highContrast: initialState.preferences.highContrast,
+      },
+    }));
+  }, []);
+
   return {
     ...workspace,
     hydrated,
@@ -218,5 +232,6 @@ export function useStudyWorkspace() {
     setColorPalette,
     setColorMode,
     toggleHighContrast,
+    resetAppearance,
   };
 }
