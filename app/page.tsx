@@ -168,12 +168,14 @@ interface HomeProps {
   initialBookId?: string;
   initialChapterNumber?: number;
   initialReference?: string;
+  initialLocationIsExplicit?: boolean;
 }
 
 export default function Home({
   initialBookId = "GEN",
   initialChapterNumber = 1,
   initialReference = "Génesis 1",
+  initialLocationIsExplicit = false,
 }: HomeProps) {
   const [selectedVerse, setSelectedVerse] = useState(1);
   const [activeBookId, setActiveBookId] = useState(initialBookId);
@@ -686,6 +688,7 @@ export default function Home({
                 readingScale={preferences.readingScale}
                 initialBookId={initialBookId}
                 initialChapterNumber={initialChapterNumber}
+                initialLocationIsExplicit={initialLocationIsExplicit}
                 preferredBibleId={preferences.defaultBibleId}
                 rememberLastReading={preferences.rememberLastReading}
                 lastReading={lastReading}

@@ -3,180 +3,32 @@
 import { useCallback, useEffect, useState } from "react";
 
 import {
-  isColorMode,
-  isColorPalette,
   resolveColorMode,
   type ColorMode,
   type ColorPalette,
 } from "@/lib/theme-palettes";
 
-export type ReadingScale = "small" | "normal" | "large" | "extra-large";
-export type ReadingLineHeight = "compact" | "comfortable" | "spacious";
-export type ReadingWidth = "narrow" | "balanced" | "wide";
-export type ReadingFont = "serif" | "accessible";
+import {
+  initialWorkspaceState as initialState,
+  isWorkspaceBackup,
+  normalizeWorkspace,
+  type ReadingFont,
+  type ReadingLineHeight,
+  type ReadingLocation,
+  type ReadingScale,
+  type ReadingWidth,
+  type StudyWorkspaceState,
+} from "@/lib/study-workspace";
 
-export interface ReadingLocation {
-  bibleId: string;
-  bookId: string;
-  chapterId: string;
-  chapterNumber: number;
-}
-
-export interface StudyWorkspaceState {
-  version: 1;
-  completedByStudy: Record<string, number[]>;
-  bookmarks: string[];
-  notes: Record<string, string>;
-  lastReading: ReadingLocation | null;
-  preferences: {
-    readingScale: ReadingScale;
-    readingLineHeight: ReadingLineHeight;
-    readingWidth: ReadingWidth;
-    readingFont: ReadingFont;
-    focusMode: boolean;
-    rememberLastReading: boolean;
-    defaultBibleId: string;
-    reduceMotion: boolean;
-    colorPalette: ColorPalette;
-    colorMode: ColorMode;
-    highContrast: boolean;
-  };
-}
+export type {
+  ReadingFont,
+  ReadingLineHeight,
+  ReadingLocation,
+  ReadingScale,
+  ReadingWidth,
+} from "@/lib/study-workspace";
 
 const STORAGE_KEY = "academia-biblica.workspace.v1";
-
-const initialState: StudyWorkspaceState = {
-  version: 1,
-  completedByStudy: {},
-  bookmarks: [],
-  notes: {},
-  lastReading: null,
-  preferences: {
-    readingScale: "normal",
-    readingLineHeight: "comfortable",
-    readingWidth: "balanced",
-    readingFont: "serif",
-    focusMode: false,
-    rememberLastReading: true,
-    defaultBibleId: "",
-    reduceMotion: false,
-    colorPalette: "manuscript",
-    colorMode: "system",
-    highContrast: false,
-  },
-};
-
-function normalizeReadingLocation(value: unknown): ReadingLocation | null {
-  if (!value || typeof value !== "object") return null;
-  const candidate = value as Partial<ReadingLocation>;
-  if (
-    typeof candidate.bibleId !== "string" ||
-    typeof candidate.bookId !== "string" ||
-    typeof candidate.chapterId !== "string" ||
-    !Number.isInteger(candidate.chapterNumber) ||
-    (candidate.chapterNumber ?? 0) < 1
-  ) {
-    return null;
-  }
-  return {
-    bibleId: candidate.bibleId,
-    bookId: candidate.bookId,
-    chapterId: candidate.chapterId,
-    chapterNumber: candidate.chapterNumber as number,
-  };
-}
-
-function isWorkspaceBackup(value: unknown): value is Partial<StudyWorkspaceState> {
-  if (!value || typeof value !== "object") return false;
-  const candidate = value as Partial<StudyWorkspaceState>;
-  return (
-    Array.isArray(candidate.bookmarks) &&
-    Boolean(candidate.completedByStudy && typeof candidate.completedByStudy === "object") &&
-    Boolean(candidate.notes && typeof candidate.notes === "object") &&
-    Boolean(candidate.preferences && typeof candidate.preferences === "object")
-  );
-}
-
-export function normalizeWorkspace(value: unknown): StudyWorkspaceState {
-  if (!value || typeof value !== "object") return initialState;
-  const candidate = value as Partial<StudyWorkspaceState>;
-  const preferences = candidate.preferences;
-  const readingScale =
-    preferences?.readingScale === "small" ||
-    preferences?.readingScale === "large" ||
-    preferences?.readingScale === "extra-large" ||
-    preferences?.readingScale === "normal"
-      ? preferences.readingScale
-      : "normal";
-  const readingLineHeight =
-    preferences?.readingLineHeight === "compact" ||
-    preferences?.readingLineHeight === "spacious" ||
-    preferences?.readingLineHeight === "comfortable"
-      ? preferences.readingLineHeight
-      : "comfortable";
-  const readingWidth =
-    preferences?.readingWidth === "narrow" ||
-    preferences?.readingWidth === "wide" ||
-    preferences?.readingWidth === "balanced"
-      ? preferences.readingWidth
-      : "balanced";
-  const readingFont =
-    preferences?.readingFont === "accessible" || preferences?.readingFont === "serif"
-      ? preferences.readingFont
-      : "serif";
-  const colorPalette = isColorPalette(preferences?.colorPalette)
-    ? preferences.colorPalette
-    : "manuscript";
-  const colorMode = isColorMode(preferences?.colorMode)
-    ? preferences.colorMode
-    : "system";
-
-  return {
-    version: 1,
-    completedByStudy:
-      candidate.completedByStudy && typeof candidate.completedByStudy === "object"
-        ? Object.fromEntries(
-            Object.entries(candidate.completedByStudy as Record<string, unknown>)
-              .filter((entry): entry is [string, unknown[]] => Array.isArray(entry[1]))
-              .map(([key, verses]) => [
-                key,
-                [...new Set(verses.filter((verse): verse is number => Number.isInteger(verse) && (verse as number) > 0))],
-              ]),
-          )
-        : {},
-    bookmarks: Array.isArray(candidate.bookmarks)
-      ? candidate.bookmarks.filter((item): item is string => typeof item === "string")
-      : [],
-    notes:
-      candidate.notes && typeof candidate.notes === "object"
-        ? Object.fromEntries(
-            Object.entries(candidate.notes).filter(
-              (entry): entry is [string, string] => typeof entry[1] === "string",
-            ),
-          )
-        : {},
-    lastReading: normalizeReadingLocation(candidate.lastReading),
-    preferences: {
-      readingScale,
-      readingLineHeight,
-      readingWidth,
-      readingFont,
-      focusMode: Boolean(preferences?.focusMode),
-      rememberLastReading:
-        typeof preferences?.rememberLastReading === "boolean"
-          ? preferences.rememberLastReading
-          : true,
-      defaultBibleId:
-        typeof preferences?.defaultBibleId === "string"
-          ? preferences.defaultBibleId
-          : "",
-      reduceMotion: Boolean(preferences?.reduceMotion),
-      colorPalette,
-      colorMode,
-      highContrast: Boolean(preferences?.highContrast),
-    },
-  };
-}
 
 export function useStudyWorkspace() {
   const [workspace, setWorkspace] = useState<StudyWorkspaceState>(initialState);

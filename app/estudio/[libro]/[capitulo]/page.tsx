@@ -59,6 +59,7 @@ export default async function StudyRoute({ params }: StudyRouteProps) {
       initialBookId={study.bookId}
       initialChapterNumber={study.chapter}
       initialReference={`${study.bookName} ${study.chapter}`}
+      initialLocationIsExplicit
     />
   );
 }
