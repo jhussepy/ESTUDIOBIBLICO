@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { ReadingScale } from "@/hooks/use-study-workspace";
+import type { ReadingLocation, ReadingScale } from "@/hooks/use-study-workspace";
 
 declare global {
   interface Window {
@@ -96,12 +96,20 @@ interface BibleReaderProps {
   readingScale?: ReadingScale;
   initialBookId?: string;
   initialChapterNumber?: number;
+  preferredBibleId?: string;
+  rememberLastReading?: boolean;
+  lastReading?: ReadingLocation | null;
+  onReadingChange?: (location: ReadingLocation) => void;
 }
 
 export function BibleReader({
   readingScale = "normal",
   initialBookId = "GEN",
   initialChapterNumber = 1,
+  preferredBibleId = "",
+  rememberLastReading = true,
+  lastReading = null,
+  onReadingChange,
 }: BibleReaderProps) {
   const [bibles, setBibles] = useState<BibleSummary[]>([]);
   const [books, setBooks] = useState<BookSummary[]>([]);
@@ -115,6 +123,11 @@ export function BibleReader({
   const [error, setError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
   const pendingBookIdRef = useRef<string | null>(null);
+  const startupPreferencesRef = useRef({
+    preferredBibleId,
+    rememberLastReading,
+    lastReading,
+  });
 
   const selectedBible = useMemo(
     () => bibles.find((bible) => bible.id === selectedBibleId),
@@ -145,10 +158,20 @@ export function BibleReader({
           return priorityDifference || a.name.localeCompare(b.name, "es");
         });
         const requestedBible = initialParam("bible");
+        const startup = startupPreferencesRef.current;
+        const rememberedBible =
+          !requestedBible && startup.rememberLastReading
+            ? startup.lastReading?.bibleId || ""
+            : "";
+        const configuredBible = startup.preferredBibleId;
         const nextBibleId =
           ordered.some((bible) => bible.id === requestedBible)
             ? requestedBible
-            : ordered[0]?.id || "";
+            : ordered.some((bible) => bible.id === rememberedBible)
+              ? rememberedBible
+              : ordered.some((bible) => bible.id === configuredBible)
+                ? configuredBible
+                : ordered[0]?.id || "";
         setBibles(ordered);
         setBooksLoading(Boolean(nextBibleId));
         setSelectedBibleId(nextBibleId);
@@ -173,7 +196,15 @@ export function BibleReader({
     )
       .then((availableBooks) => {
         const pendingBookId = pendingBookIdRef.current;
-        const requestedBook = initialParam("book") || initialBookId;
+        const requestedBookParam = initialParam("book");
+        const startup = startupPreferencesRef.current;
+        const rememberedReading =
+          !requestedBookParam &&
+          startup.rememberLastReading &&
+          startup.lastReading?.bibleId === selectedBibleId
+            ? startup.lastReading
+            : null;
+        const requestedBook = requestedBookParam || rememberedReading?.bookId || initialBookId;
         const nextBook =
           availableBooks.find((book) => book.id === pendingBookId) ||
           availableBooks.find((book) => book.id === requestedBook) ||
@@ -185,6 +216,7 @@ export function BibleReader({
 
         const requestedChapter =
           initialParam("chapter") ||
+          (rememberedReading?.bookId === nextBook?.id ? rememberedReading.chapterId : "") ||
           (nextBook?.id === initialBookId ? `${initialBookId}.${initialChapterNumber}` : "");
         const nextChapterId =
           nextBook?.chapters.some((item) => item.id === requestedChapter)
@@ -241,19 +273,31 @@ export function BibleReader({
 
   useEffect(() => {
     if (!selectedBookId) return;
+    const chapterNumber =
+      Number.parseInt(selectedChapter?.number || chapter?.number || "", 10) || undefined;
     window.dispatchEvent(new CustomEvent("bible-reader-selection", {
       detail: {
         bookId: selectedBookId,
         reference: chapter?.reference || selectedChapter?.reference || selectedBook?.name || selectedBookId,
-        chapterNumber:
-          Number.parseInt(selectedChapter?.number || chapter?.number || "", 10) || undefined,
+        chapterNumber,
       },
     }));
+    if (selectedBibleId && selectedChapterId && chapterNumber) {
+      onReadingChange?.({
+        bibleId: selectedBibleId,
+        bookId: selectedBookId,
+        chapterId: selectedChapterId,
+        chapterNumber,
+      });
+    }
   }, [
     chapter?.number,
     chapter?.reference,
+    onReadingChange,
+    selectedBibleId,
     selectedBook?.name,
     selectedBookId,
+    selectedChapterId,
     selectedChapter?.number,
     selectedChapter?.reference,
   ]);
