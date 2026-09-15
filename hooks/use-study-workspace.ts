@@ -2,6 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import {
+  isColorMode,
+  isColorPalette,
+  resolveColorMode,
+  type ColorMode,
+  type ColorPalette,
+} from "@/lib/theme-palettes";
+
 export type ReadingScale = "small" | "normal" | "large";
 
 interface StudyWorkspaceState {
@@ -12,6 +20,9 @@ interface StudyWorkspaceState {
   preferences: {
     readingScale: ReadingScale;
     focusMode: boolean;
+    colorPalette: ColorPalette;
+    colorMode: ColorMode;
+    highContrast: boolean;
   };
 }
 
@@ -25,6 +36,9 @@ const initialState: StudyWorkspaceState = {
   preferences: {
     readingScale: "normal",
     focusMode: false,
+    colorPalette: "manuscript",
+    colorMode: "system",
+    highContrast: false,
   },
 };
 
@@ -38,6 +52,12 @@ function normalizeWorkspace(value: unknown): StudyWorkspaceState {
     preferences?.readingScale === "normal"
       ? preferences.readingScale
       : "normal";
+  const colorPalette = isColorPalette(preferences?.colorPalette)
+    ? preferences.colorPalette
+    : "manuscript";
+  const colorMode = isColorMode(preferences?.colorMode)
+    ? preferences.colorMode
+    : "system";
 
   return {
     version: 1,
@@ -66,6 +86,9 @@ function normalizeWorkspace(value: unknown): StudyWorkspaceState {
     preferences: {
       readingScale,
       focusMode: Boolean(preferences?.focusMode),
+      colorPalette,
+      colorMode,
+      highContrast: Boolean(preferences?.highContrast),
     },
   };
 }
@@ -101,6 +124,18 @@ export function useStudyWorkspace() {
       // Private browsing or storage limits may prevent persistence.
     }
   }, [hydrated, workspace]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.palette = workspace.preferences.colorPalette;
+    root.dataset.colorMode = resolveColorMode(workspace.preferences.colorMode, prefersDark);
+    root.dataset.highContrast = workspace.preferences.highContrast ? "true" : "false";
+  }, [
+    workspace.preferences.colorMode,
+    workspace.preferences.colorPalette,
+    workspace.preferences.highContrast,
+  ]);
 
   const setCompletedVerses = useCallback(
     (studyKey: string, update: (verses: number[]) => number[]) => {
@@ -148,6 +183,30 @@ export function useStudyWorkspace() {
     }));
   }, []);
 
+  const setColorPalette = useCallback((colorPalette: ColorPalette) => {
+    setWorkspace((current) => ({
+      ...current,
+      preferences: { ...current.preferences, colorPalette },
+    }));
+  }, []);
+
+  const setColorMode = useCallback((colorMode: ColorMode) => {
+    setWorkspace((current) => ({
+      ...current,
+      preferences: { ...current.preferences, colorMode },
+    }));
+  }, []);
+
+  const toggleHighContrast = useCallback(() => {
+    setWorkspace((current) => ({
+      ...current,
+      preferences: {
+        ...current.preferences,
+        highContrast: !current.preferences.highContrast,
+      },
+    }));
+  }, []);
+
   return {
     ...workspace,
     hydrated,
@@ -156,5 +215,8 @@ export function useStudyWorkspace() {
     setNote,
     setReadingScale,
     toggleFocusMode,
+    setColorPalette,
+    setColorMode,
+    toggleHighContrast,
   };
 }

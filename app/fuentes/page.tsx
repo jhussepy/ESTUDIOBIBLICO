@@ -77,7 +77,7 @@ export default function SourcesPage() {
 
         <header className="mt-8 grid gap-7 rounded-2xl border border-border bg-card p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
           <div className="max-w-3xl">
-            <div className="flex items-center gap-2 text-accent-foreground">
+            <div className="flex items-center gap-2 text-accent-emphasis">
               <LibraryBig aria-hidden="true" className="size-5" />
               <p className="text-sm font-semibold uppercase tracking-[0.16em]">Transparencia académica</p>
             </div>
@@ -102,7 +102,7 @@ export default function SourcesPage() {
 
         <section className="mt-6" aria-labelledby="distinctions-title">
           <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent-foreground">Cómo leer el análisis</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent-emphasis">Cómo leer el análisis</p>
             <h2 id="distinctions-title" className="mt-2 font-serif text-3xl font-semibold">Tres niveles que no deben confundirse</h2>
           </div>
           <div className="mt-4 grid gap-4 md:grid-cols-3">
@@ -121,7 +121,7 @@ export default function SourcesPage() {
         <section className="mt-10" aria-labelledby="bibliography-title">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent-foreground">Bibliografía base</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-accent-emphasis">Bibliografía base</p>
               <h2 id="bibliography-title" className="mt-2 font-serif text-3xl font-semibold">Fuentes utilizadas en Génesis 1–10</h2>
             </div>
             <p className="max-w-md text-sm leading-6 text-muted-foreground">
