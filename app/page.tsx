@@ -528,7 +528,7 @@ export default function Home({
             </div>
             <div className="min-w-0">
               <p className="font-serif text-lg font-semibold leading-tight tracking-tight">Academia Bíblica</p>
-              <p className="mt-0.5 text-xs tracking-wide text-sidebar-foreground/60">66 LIBROS · ESTUDIO PROFUNDO</p>
+              <p className="mt-0.5 text-xs tracking-wide text-sidebar-foreground/72">66 LIBROS · ESTUDIO PROFUNDO</p>
             </div>
           </div>
         </SidebarHeader>
@@ -551,7 +551,7 @@ export default function Home({
                           chapters={chapters}
                           onSelect={() => openBook(book)}
                         />
-                        <SidebarMenuBadge className={active ? "text-sidebar-primary-foreground/80" : "text-sidebar-foreground/65"}>
+                        <SidebarMenuBadge className={active ? "text-sidebar-primary-foreground/80" : "text-sidebar-foreground/72"}>
                           {chapters}
                         </SidebarMenuBadge>
                       </SidebarMenuItem>
